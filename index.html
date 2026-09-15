@@ -6,6 +6,7 @@
 <title>RecruitAI · 智能招聘助手</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root{
     --paper:#F5F6F1;
@@ -313,7 +314,8 @@
         <input type="password" id="aiKey" placeholder="sk-ant-...">
         <div id="aiStatus" class="module-detail" style="margin-bottom:4px;">未连接 · 当前使用本地算法兜底</div>
       </div>
-      <p class="weight-note" id="aiExplain">关闭时，②语义匹配 与 ③素质评估 使用本地可解释近似算法（离线可跑，适合现场直接演示）。开启并填入你自己的 API Key 后，这两项会改为真实调用 Claude 模型分析简历语义，并生成打分依据与追问问题。</p>
+      <p class="weight-note" id="aiExplain">关闭时，②语义匹配 与 ③素质评估 使用本地可解释近似算法（离线可跑，适合现场直接演示）。开启并填入你自己的 API Key 后，可以在右侧候选人详情里为单个候选人单独触发 Claude 评估，按需调用、按需付费，不会每次都重新跑一遍全部人。</p>
+      <button class="block ghost" id="btnEvalAll" style="margin-top:4px;">对队列中全部候选人运行 Claude 评估</button>
     </div>
 
     <div class="panel">
@@ -342,6 +344,43 @@
     </div>
 
     <div class="panel">
+      <p class="panel-title">新增候选人 · ADD CANDIDATE</p>
+
+      <label>上传简历 PDF（自动提取姓名 / 学历 / 经验 / 正文）</label>
+      <div id="dropZone" style="border:1px dashed var(--line); border-radius:2px; padding:16px; text-align:center; margin-bottom:8px; cursor:pointer;">
+        <input type="file" id="pdfInput" accept="application/pdf" style="display:none;">
+        <span id="dropZoneText" style="font-size:12.5px; color:var(--ink-soft);">点击选择 PDF 文件，或拖拽到此处</span>
+      </div>
+      <p id="parseStatus" class="module-detail" style="margin:0 0 14px;"></p>
+
+      <label style="display:flex; align-items:center; gap:8px; margin:2px 0 12px;">
+        <span style="flex:1; height:1px; background:var(--line);"></span>
+        <span style="font-size:11px; color:var(--ink-soft);">或手动填写 / 核对下方字段</span>
+        <span style="flex:1; height:1px; background:var(--line);"></span>
+      </label>
+
+      <label>姓名</label>
+      <input type="text" id="cName" placeholder="例：李思">
+      <div class="field-row">
+        <div>
+          <label>学历</label>
+          <select id="cDegree">
+            <option value="1">本科</option>
+            <option value="2">硕士</option>
+            <option value="3">博士</option>
+          </select>
+        </div>
+        <div>
+          <label>工作经验（年）</label>
+          <input type="number" id="cExp" value="0" min="0">
+        </div>
+      </div>
+      <label>简历正文（经历 / 项目描述，粘贴即可，或由PDF自动填充后在此核对）</label>
+      <textarea id="cResume" style="min-height:100px;"></textarea>
+      <button class="block ghost" id="btnAdd">加入队列并评估</button>
+    </div>
+
+    <div class="panel">
       <p class="panel-title">评分权重 · ADJUSTABLE WEIGHTS</p>
       <div class="weight-row">
         <div class="top"><span class="name">规则引擎（硬性条件匹配）</span><span class="val" id="wRuleVal">40%</span></div>
@@ -362,28 +401,6 @@
       <p class="panel-title">候选人队列 · QUEUE (<span id="queueCount">0</span>)</p>
       <div id="queueList"></div>
     </div>
-
-    <div class="panel">
-      <p class="panel-title">新增候选人 · ADD CANDIDATE</p>
-      <label>姓名</label>
-      <input type="text" id="cName" placeholder="例：李思">
-      <div class="field-row">
-        <div>
-          <label>学历</label>
-          <select id="cDegree">
-            <option value="1">本科</option>
-            <option value="2">硕士</option>
-            <option value="3">博士</option>
-          </select>
-        </div>
-        <div>
-          <label>工作经验（年）</label>
-          <input type="number" id="cExp" value="0" min="0">
-        </div>
-      </div>
-      <label>简历正文（经历 / 项目描述，粘贴即可）</label>
-      <textarea id="cResume" style="min-height:100px;"></textarea>
-      <button class="block ghost" id="btnAdd">加入队列并评估</button>
     </div>
   </div>
 
@@ -409,9 +426,9 @@ const JD = {
 
 const SEED_CANDIDATES = [
   {
-    name:"姜智颖",
+    name:"李萌",
     degree:2, exp:1,
-    resume:"负责百度ERP外包管理系统产品运营，独立撰写周度产品运营报告，识别考勤规则配置繁琐、费用结算规则漏配无预警等系统性产品痛点，推动考勤规则批量化配置、结算规则自动预警等功能上线，相关用户咨询量下降60%。主导完成30+团队外包员工结算规则标准化配置，涉及500+人次，实现全量外包人员管理数据准确率100%。独立完成RecruitAI产品方案设计，输出完整PRD文档，运用RICE模型完成需求优先级排序，依托Figma、Axure完成原型设计，设计分层可解释评分架构。"
+    resume:"负责某互联网公司B端产品运营，独立撰写周度产品运营报告，识别系统性产品痛点并推动多项功能上线，相关用户咨询量下降60%。主导完成外包团队结算规则标准化配置，涉及500+人次，实现管理数据准确率100%。独立完成过一份招聘类产品方案设计，输出完整PRD文档，运用RICE模型完成需求优先级排序，依托Figma、Axure完成原型设计，参与设计过分层可解释评分架构。"
   },
   {
     name:"王晨",
@@ -437,6 +454,145 @@ let aiEnabled = false;
 let aiKeyValue = "";
 
 function degreeText(d){ return ['','本科','硕士','博士'][d] || '不限'; }
+
+/* ---------------- PDF parsing ---------------- */
+if(window.pdfjsLib){
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
+
+async function extractPdfText(file){
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let fullText = "";
+  for(let i=1; i<=pdf.numPages; i++){
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map(it=>it.str).join(" ");
+    fullText += pageText + "\n";
+  }
+  return fullText.replace(/[ \t]+/g,' ').replace(/\n{2,}/g,'\n').trim();
+}
+
+function localParseFields(text){
+  const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+  let name = "";
+  for(const line of lines.slice(0,6)){
+    const compact = line.replace(/\s+/g,'');
+    if(/^[\u4e00-\u9fa5]{2,4}$/.test(compact) && !/简历|个人|求职|应聘/.test(compact)){
+      name = compact; break;
+    }
+  }
+  let degree = 1;
+  if(text.includes('博士')) degree = 3;
+  else if(text.includes('硕士')) degree = 2;
+  else if(text.includes('本科')||text.includes('学士')) degree = 1;
+
+  let expYears = 0;
+  const explicitMatch = text.match(/(\d+(?:\.\d+)?)\s*年.{0,4}(工作)?经验/);
+  if(explicitMatch){
+    expYears = parseFloat(explicitMatch[1]);
+  } else {
+    const ranges = [...text.matchAll(/(20\d{2})[.\-\/](\d{1,2})\s*[-–~至]\s*(20\d{2}|至今|now)[.\-\/]?(\d{1,2})?/g)];
+    let totalMonths = 0;
+    const nowYear = 2026, nowMonth = 9;
+    ranges.forEach(m=>{
+      const y1=parseInt(m[1]), mo1=parseInt(m[2]);
+      let y2, mo2;
+      if(m[3]==='至今' || m[3]==='now'){ y2=nowYear; mo2=nowMonth; }
+      else { y2=parseInt(m[3]); mo2 = m[4]?parseInt(m[4]):12; }
+      const months = (y2-y1)*12 + (mo2-mo1);
+      if(months>0 && months<600) totalMonths += months;
+    });
+    if(totalMonths>0) expYears = Math.round((totalMonths/12)*2)/2;
+  }
+
+  return { name, degree, exp: expYears };
+}
+
+async function aiParseResume(text, apiKey){
+  const prompt = `请从下面这段从PDF提取的简历原文中，抽取候选人基本信息。原文可能因PDF排版原因存在顺序错乱或多余空格，请尽量根据上下文判断。
+
+【简历原文】
+${text.slice(0,6000)}
+
+请只输出一个JSON对象，不要有多余文字、不要使用markdown代码块标记，字段如下：
+{
+  "name": "候选人姓名（2到4个汉字，找不到则填空字符串）",
+  "degree": 1到3的整数，1=本科，2=硕士，3=博士，取候选人最高学历,
+  "exp_years": 数字，候选人总工作/实习经验年数的估计值（可以是小数，找不到明确依据则填0）
+}`;
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'content-type':'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body: JSON.stringify({
+      model:'claude-sonnet-5',
+      max_tokens: 300,
+      messages:[{role:'user', content: prompt}]
+    })
+  });
+  if(!resp.ok){
+    const errText = await resp.text().catch(()=> '');
+    throw new Error('HTTP '+resp.status+' '+errText.slice(0,150));
+  }
+  const data = await resp.json();
+  const text2 = (data.content||[]).map(b=>b.text||'').join('');
+  const clean = text2.replace(/```json/g,'').replace(/```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+async function handlePdfUpload(file){
+  const statusEl = document.getElementById('parseStatus');
+  const zoneText = document.getElementById('dropZoneText');
+  zoneText.textContent = "已选择：" + file.name;
+  statusEl.style.color = 'var(--ink-soft)';
+  statusEl.textContent = "正在提取PDF文本…";
+  try{
+    const rawText = await extractPdfText(file);
+    document.getElementById('cResume').value = rawText;
+
+    if(aiKeyValue){
+      statusEl.textContent = "PDF文本已提取，Claude 正在识别字段…";
+      try{
+        const fields = await aiParseResume(rawText, aiKeyValue);
+        if(fields.name) document.getElementById('cName').value = fields.name;
+        if(fields.degree) document.getElementById('cDegree').value = fields.degree;
+        if(typeof fields.exp_years === 'number') document.getElementById('cExp').value = fields.exp_years;
+        statusEl.style.color = 'var(--teal)';
+        statusEl.textContent = "已由 Claude 自动识别姓名 / 学历 / 经验，请核对后再加入队列。";
+        return;
+      }catch(aiErr){
+        statusEl.textContent = "Claude 字段识别失败（"+aiErr.message+"），已回退为本地规则识别…";
+      }
+    }
+    const local = localParseFields(rawText);
+    if(local.name) document.getElementById('cName').value = local.name;
+    document.getElementById('cDegree').value = local.degree;
+    if(local.exp) document.getElementById('cExp').value = local.exp;
+    statusEl.style.color = 'var(--ochre)';
+    statusEl.textContent = "已由本地规则粗略识别字段，准确率有限，请务必核对后再加入队列（开启AI引擎并填Key可提升识别准确度）。";
+  }catch(err){
+    statusEl.style.color = 'var(--flag)';
+    statusEl.textContent = "PDF解析失败："+err.message+"，请改为手动粘贴简历正文。";
+  }
+}
+
+document.getElementById('dropZone').addEventListener('click', ()=> document.getElementById('pdfInput').click());
+document.getElementById('pdfInput').addEventListener('change', (e)=>{
+  if(e.target.files[0]) handlePdfUpload(e.target.files[0]);
+});
+['dragover','dragleave','drop'].forEach(evt=>{
+  document.getElementById('dropZone').addEventListener(evt, (e)=>{
+    e.preventDefault();
+    if(evt==='drop' && e.dataTransfer.files[0]){
+      handlePdfUpload(e.dataTransfer.files[0]);
+    }
+  });
+});
 
 async function aiEvaluate(jd, cand, apiKey){
   const prompt = `你是一名严谨的招聘评估助手。请基于下面的岗位要求与候选人简历，输出结构化评估。
@@ -591,18 +747,46 @@ function recomputeAll(){
   const jd = getJD();
   const weights = getWeights();
   candidates.forEach(c=>{
+    const prevAi = (c._score && c._score.source==='ai') ? {
+      semScore:c._score.semScore, qualScore:c._score.qualScore,
+      semReasoning:c._score.semReasoning, qualReasoning:c._score.qualReasoning,
+      strengths:c._score.strengths, gaps:c._score.gaps, aiQuestions:c._score.aiQuestions
+    } : null;
     c._score = scoreCandidate(c, jd);
+    if(prevAi){
+      Object.assign(c._score, prevAi, {source:'ai'});
+      c._aiState = 'done';
+    } else {
+      c._aiState = 'idle';
+      c._aiError = null;
+    }
     c._total = weightedTotal(c._score, weights);
-    c._aiState = 'idle';
-    c._aiError = null;
   });
   candidates.sort((a,b)=> b._total - a._total);
   renderQueue();
   if(selectedId!==null) renderDetail(jd, weights);
+}
 
-  if(aiEnabled && aiKeyValue){
-    candidates.forEach(c=> upgradeWithAI(c, jd, weights));
+function evaluateOne(candId){
+  const jd = getJD();
+  const weights = getWeights();
+  const cand = candidates.find(c=>c.id===candId);
+  if(!cand) return;
+  if(!aiKeyValue){
+    alert('请先在左侧「AI 引擎」面板填入 API Key');
+    return;
   }
+  upgradeWithAI(cand, jd, weights);
+}
+
+function evaluateAllWithAI(){
+  const jd = getJD();
+  const weights = getWeights();
+  if(!aiKeyValue){
+    alert('请先在左侧「AI 引擎」面板填入 API Key');
+    return;
+  }
+  candidates.forEach(c=> upgradeWithAI(c, jd, weights));
 }
 
 function renderWeightLabels(){
@@ -691,6 +875,12 @@ function renderDetail(jd, weights){
       </div>
     </div>
 
+    <div style="display:flex; justify-content:flex-end; margin-bottom:2px;">
+      <button class="small ghost" id="btnEvalOne" ${cand._aiState==='loading' ? 'disabled' : ''}>
+        ${cand._aiState==='loading' ? 'Claude 分析中…' : (s.source==='ai' ? '用 Claude 重新评估这位候选人' : '用 Claude 评估这位候选人')}
+      </button>
+    </div>
+
     <div class="module">
       <div class="module-top"><span class="name">① 规则引擎 · 硬性条件匹配</span><span class="score">${s.ruleScore}</span></div>
       <div class="bar-track"><div class="bar-fill" style="width:${s.ruleScore}%;"></div></div>
@@ -775,6 +965,7 @@ function renderDetail(jd, weights){
     renderDetail(jd, weights);
     renderQueue();
   };
+  document.getElementById('btnEvalOne').onclick = ()=> evaluateOne(cand.id);
 }
 
 ['wRule','wSem','wQual'].forEach(id=>{
@@ -804,6 +995,7 @@ function updateAiStatus(){
 }
 
 document.getElementById('btnRescore').onclick = recomputeAll;
+document.getElementById('btnEvalAll').onclick = evaluateAllWithAI;
 
 document.getElementById('btnAdd').onclick = ()=>{
   const name = document.getElementById('cName').value.trim();
@@ -822,6 +1014,10 @@ document.getElementById('btnAdd').onclick = ()=>{
   document.getElementById('cName').value='';
   document.getElementById('cResume').value='';
   document.getElementById('cExp').value='0';
+  document.getElementById('cDegree').value='1';
+  document.getElementById('dropZoneText').textContent = '点击选择 PDF 文件，或拖拽到此处';
+  document.getElementById('parseStatus').textContent = '';
+  document.getElementById('pdfInput').value = '';
   recomputeAll();
 };
 
