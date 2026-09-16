@@ -1,1042 +1,516 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RecruitAI · 智能招聘助手</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-  :root{
-    --paper:#F5F6F1;
-    --paper-raised:#FFFFFF;
-    --ink:#1C2321;
-    --ink-soft:#5B645E;
-    --line:#DBD9CE;
-    --teal:#1F6F6B;
-    --teal-soft:#E4EFEE;
-    --ochre:#B8863B;
-    --ochre-soft:#F6ECD9;
-    --flag:#AD4B2E;
-    --flag-soft:#F7E7E1;
+:root{
+  --paper:#F6F1E7; --paper-2:#EFE8D8; --ink:#2A2724; --ink-soft:#736B5E; --line:#D8CBB4;
+  --route:#2F6B52; --route-100:#DCEAE1; --route-800:#1B4536;
+  --stamp:#C98A1E; --stamp-100:#F5E6C8; --stamp-800:#7A5210;
+  --sky:#1F6F78; --sky-100:#DCEEEF; --sky-800:#123E42;
+  --pink:#B24E6B; --pink-100:#F5E1E7; --pink-800:#6E2C3E;
+  --purple:#5B4E96; --purple-100:#E7E3F5; --purple-800:#332A5E;
+  --danger:#B23A2E;
+}
+:root:not([data-theme="light"]){
+  @media (prefers-color-scheme: dark){
+    --paper:#211E1A; --paper-2:#2A2621; --ink:#EDE6D8; --ink-soft:#A69C8B; --line:#4A4238;
+    --route:#6FBE96; --route-100:#26382F; --route-800:#CFE9DB;
+    --stamp:#E3AE55; --stamp-100:#3A2E17; --stamp-800:#F2D8A0;
+    --sky:#5FB4BC; --sky-100:#1D3336; --sky-800:#CFEDEF;
+    --pink:#DE8FA6; --pink-100:#3A2530; --pink-800:#F5D6DF;
+    --purple:#A79CDA; --purple-100:#2A2540; --purple-800:#E3DEF7;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size:14.5px;
-    line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-  .mono{font-family:'IBM Plex Mono', monospace;}
-  .serif{font-family:'Newsreader', serif;}
-
-  a{color:inherit;}
-
-  header{
-    border-bottom:1px solid var(--line);
-    background:var(--paper-raised);
-    padding:22px 32px 20px;
-  }
-  .header-inner{
-    max-width:1320px;
-    margin:0 auto;
-    display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    gap:24px;
-    flex-wrap:wrap;
-  }
-  .brand{display:flex; align-items:baseline; gap:14px;}
-  .brand h1{
-    font-family:'Newsreader', serif;
-    font-weight:500;
-    font-size:26px;
-    margin:0;
-    letter-spacing:0.2px;
-  }
-  .brand .dot{color:var(--teal);}
-  .tagline{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    color:var(--ink-soft);
-    white-space:nowrap;
-  }
-  .principle-line{
-    font-size:13px;
-    color:var(--ink-soft);
-    max-width:520px;
-  }
-
-  .shell{
-    max-width:1320px;
-    margin:0 auto;
-    padding:28px 32px 60px;
-    display:grid;
-    grid-template-columns:380px 1fr;
-    gap:24px;
-    align-items:start;
-  }
-  @media (max-width:980px){
-    .shell{grid-template-columns:1fr;}
-  }
-
-  .panel{
-    background:var(--paper-raised);
-    border:1px solid var(--line);
-    border-radius:3px;
-    padding:20px 20px 22px;
-  }
-  .panel + .panel{margin-top:20px;}
-
-  .panel-title{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11.5px;
-    letter-spacing:0.02em;
-    color:var(--ink-soft);
-    margin:0 0 14px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-  }
-
-  label{
-    display:block;
-    font-size:12.5px;
-    color:var(--ink-soft);
-    margin-bottom:5px;
-  }
-  input[type=text], input[type=number], textarea, select{
-    width:100%;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size:13.5px;
-    padding:8px 10px;
-    border:1px solid var(--line);
-    border-radius:2px;
-    background:var(--paper);
-    color:var(--ink);
-    margin-bottom:12px;
-  }
-  textarea{resize:vertical; min-height:64px; line-height:1.5;}
-  input:focus, textarea:focus, select:focus{
-    outline:2px solid var(--teal);
-    outline-offset:1px;
-    background:#fff;
-  }
-
-  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-
-  button{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12.5px;
-    letter-spacing:0.01em;
-    cursor:pointer;
-    border-radius:2px;
-    padding:9px 14px;
-    border:1px solid var(--ink);
-    background:var(--ink);
-    color:var(--paper-raised);
-    transition:transform .08s ease;
-  }
-  button:active{transform:translateY(1px);}
-  button.ghost{
-    background:transparent;
-    color:var(--ink);
-    border:1px solid var(--line);
-  }
-  button.ghost:hover{border-color:var(--ink);}
-  button.block{width:100%;}
-  button.small{padding:5px 10px; font-size:11.5px;}
-
-  .weight-row{margin-bottom:14px;}
-  .weight-row .top{
-    display:flex; justify-content:space-between; align-items:center;
-    font-size:12.5px; margin-bottom:4px;
-  }
-  .weight-row .top .name{color:var(--ink);}
-  .weight-row .top .val{font-family:'IBM Plex Mono', monospace; color:var(--teal); font-weight:600;}
-  input[type=range]{
-    -webkit-appearance:none;
-    width:100%;
-    height:3px;
-    background:var(--line);
-    margin:0 0 2px;
-    border-radius:2px;
-  }
-  input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none;
-    width:13px; height:13px;
-    border-radius:50%;
-    background:var(--teal);
-    cursor:pointer;
-    margin-top:-5px;
-  }
-  input[type=range]::-moz-range-thumb{
-    width:13px; height:13px; border-radius:50%;
-    background:var(--teal); border:none; cursor:pointer;
-  }
-  .weight-note{
-    font-size:11.5px; color:var(--ink-soft); margin-top:8px; line-height:1.5;
-  }
-
-  .queue-item{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:11px 8px;
-    border-bottom:1px solid var(--line);
-    cursor:pointer;
-  }
-  .queue-item:last-child{border-bottom:none;}
-  .queue-item:hover{background:var(--paper);}
-  .queue-item.active{background:var(--teal-soft);}
-  .queue-rank{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
-    color:var(--ink-soft);
-    width:16px;
-  }
-  .queue-name{flex:1; font-size:13.5px;}
-  .queue-name .sub{display:block; font-size:11px; color:var(--ink-soft); margin-top:1px;}
-  .score-badge{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:13px;
-    font-weight:600;
-    padding:2px 7px;
-    border-radius:2px;
-  }
-  .score-badge.high{background:var(--teal-soft); color:var(--teal);}
-  .score-badge.mid{background:var(--ochre-soft); color:var(--ochre);}
-  .score-badge.low{background:var(--flag-soft); color:var(--flag);}
-
-  .detail-head{
-    display:flex; justify-content:space-between; align-items:flex-start;
-    margin-bottom:6px; gap:16px; flex-wrap:wrap;
-  }
-  .detail-head h2{
-    font-family:'Newsreader', serif;
-    font-weight:500;
-    font-size:24px;
-    margin:0 0 4px;
-  }
-  .detail-meta{font-size:12.5px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace;}
-  .final-score{text-align:right;}
-  .final-score .num{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:34px;
-    font-weight:600;
-    line-height:1;
-  }
-  .final-score .lbl{font-size:11px; color:var(--ink-soft); margin-top:2px;}
-
-  .module{
-    border:1px solid var(--line);
-    border-radius:3px;
-    padding:14px 16px 15px;
-    margin-top:14px;
-  }
-  .module-top{
-    display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;
-  }
-  .module-top .name{font-size:13.5px; font-weight:600;}
-  .module-top .score{font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:15px; color:var(--teal);}
-  .bar-track{
-    height:6px; background:var(--paper); border:1px solid var(--line); border-radius:4px; overflow:hidden; margin-bottom:9px;
-  }
-  .bar-fill{height:100%; background:var(--teal);}
-  .module-detail{font-size:12.5px; color:var(--ink-soft); line-height:1.6;}
-  .tag-list{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
-  .tag{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
-    padding:2px 7px;
-    border-radius:2px;
-  }
-  .tag.hit{background:var(--teal-soft); color:var(--teal);}
-  .tag.miss{background:var(--flag-soft); color:var(--flag);}
-
-  .override-box{
-    background:var(--ochre-soft);
-    border:1px solid #E3CE9E;
-    border-radius:3px;
-    padding:14px 16px 15px;
-    margin-top:14px;
-  }
-  .override-box .name{font-size:13.5px; font-weight:600; color:#7A5A22; margin-bottom:8px; display:block;}
-  .override-row{display:flex; gap:10px; align-items:flex-end; margin-bottom:10px;}
-  .override-row > div:first-child{width:100px;}
-  .override-row input{margin-bottom:0;}
-  .decision-line{
-    font-size:12.5px; color:#7A5A22; line-height:1.6; margin-top:2px;
-  }
-  .decision-line b{font-family:'IBM Plex Mono', monospace;}
-
-  .prep-list{margin:0; padding-left:18px;}
-  .prep-list li{margin-bottom:7px; font-size:13px;}
-
-  .empty-state{text-align:center; padding:80px 20px; color:var(--ink-soft);}
-  .empty-state .serif{font-size:19px; display:block; margin-bottom:6px; color:var(--ink);}
-
-  .footer-note{
-    max-width:1320px; margin:0 auto; padding:0 32px 40px;
-    font-size:11.5px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace;
-  }
+}
+:root[data-theme="dark"]{
+  --paper:#211E1A; --paper-2:#2A2621; --ink:#EDE6D8; --ink-soft:#A69C8B; --line:#4A4238;
+  --route:#6FBE96; --route-100:#26382F; --route-800:#CFE9DB;
+  --stamp:#E3AE55; --stamp-100:#3A2E17; --stamp-800:#F2D8A0;
+  --sky:#5FB4BC; --sky-100:#1D3336; --sky-800:#CFEDEF;
+  --pink:#DE8FA6; --pink-100:#3A2530; --pink-800:#F5D6DF;
+  --purple:#A79CDA; --purple-100:#2A2540; --purple-800:#E3DEF7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  line-height:1.7;}
+h1,h2,h3{font-family:"Noto Serif SC","Songti SC",serif;font-weight:600;margin:0;letter-spacing:.02em}
+.wrap{max-width:960px;margin:0 auto;padding:0 24px}
+.hairline{border-top:1px dashed var(--line)}
+.tag-btn{border:1px solid var(--line);background:var(--paper-2);color:var(--ink-soft);
+  border-radius:999px;padding:8px 16px;font-size:14px;cursor:pointer;transition:all .15s;}
+.tag-btn.active{background:var(--route);border-color:var(--route);color:#fff}
+.card{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.btn{background:var(--route);color:#fff;border:none;border-radius:10px;padding:12px 22px;
+  font-size:15px;cursor:pointer;font-weight:600}
+.btn:hover{opacity:.9}
+.btn-outline{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 18px;font-size:14px;cursor:pointer}
+input[type=range]{accent-color:var(--route)}
+input[type=text],input[type=date],select,textarea{
+  border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;
+  padding:9px 12px;font-size:14px;font-family:inherit;}
+textarea{width:100%;resize:vertical;line-height:1.7}
+.stepper-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--paper);
+  color:var(--ink);font-size:16px;cursor:pointer;line-height:1}
+.dual-range{position:relative;height:36px}
+.dual-range input[type=range]{position:absolute;width:100%;top:14px;pointer-events:none;-webkit-appearance:none;background:transparent}
+.dual-range input[type=range]::-webkit-slider-thumb{pointer-events:auto;-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--route);cursor:pointer;margin-top:-6px}
+.dual-range input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
+.dual-range input[type=range]::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--route);border:none;cursor:pointer}
+.dual-range input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
+.toast{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);
+  padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.overlay-wrap{min-height:1px;}
+.overlay{background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:24px}
 </style>
-</head>
-<body>
 
-<header>
-  <div class="header-inner">
-    <div>
-      <div class="brand">
-        <h1>RecruitAI<span class="dot">.</span></h1>
-        <span class="tagline">AI 辅助评估 / 人工最终决策</span>
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">周末城市探索指南产品原型：根据偏好、天气、预算智能推荐活动，支持组队、打卡与攻略分享</h2>
+
+<div style="position:relative">
+
+<div style="padding:56px 0 40px">
+  <div class="wrap">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:36px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">🎫</span>
+        <span style="font-size:15px;color:var(--ink-soft)">城市漫游 · 周末探索指南</span>
       </div>
-      <p class="principle-line">分层可解释评分架构 — 规则引擎、语义匹配、素质评估独立打分并可调权重，拒绝黑盒；人工复核结论始终与 AI 建议并列展示。</p>
+      <span style="font-size:13px;color:var(--ink-soft)" id="dateline"></span>
+    </div>
+
+    <h1 style="font-size:40px;line-height:1.3;max-width:640px">这个周末，
+      <br>去哪儿都有个说法</h1>
+
+    <div style="display:flex;align-items:flex-start;gap:14px;margin-top:20px;max-width:560px">
+      <svg width="52" height="52" viewBox="0 0 52 52" style="flex-shrink:0">
+        <ellipse cx="26" cy="46" rx="14" ry="3" fill="var(--ink)" opacity=".08"/>
+        <circle cx="26" cy="24" r="20" fill="var(--stamp)"/>
+        <circle cx="14" cy="12" r="6" fill="var(--stamp)"/>
+        <circle cx="38" cy="12" r="6" fill="var(--stamp)"/>
+        <circle cx="14" cy="12" r="3" fill="var(--stamp-100)"/>
+        <circle cx="38" cy="12" r="3" fill="var(--stamp-100)"/>
+        <circle cx="19" cy="23" r="2.4" fill="var(--stamp-800)"/>
+        <circle cx="33" cy="23" r="2.4" fill="var(--stamp-800)"/>
+        <path d="M18 31Q26 37 34 31" stroke="var(--stamp-800)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <p style="color:var(--ink-soft);font-size:16px;margin:6px 0 0">
+        选好下面几项，团团自动为您推荐游玩指南~
+      </p>
     </div>
   </div>
-</header>
+</div>
 
-<div class="shell">
+<div class="hairline"></div>
 
-  <div>
-    <div class="panel" id="aiSettingsPanel">
-      <p class="panel-title">AI 引擎 · REAL MODEL CONNECTION</p>
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-        <label style="margin:0; font-size:13px; color:var(--ink);">启用 Claude 实时语义评估</label>
-        <input type="checkbox" id="aiToggle" style="width:auto; margin:0; accent-color:#1F6F6B;">
-      </div>
-      <div id="aiKeyRow" style="display:none;">
-        <label>Anthropic API Key（仅保存在本页内存中，刷新后需重新输入，不会上传到任何服务器）</label>
-        <input type="password" id="aiKey" placeholder="sk-ant-...">
-        <div id="aiStatus" class="module-detail" style="margin-bottom:4px;">未连接 · 当前使用本地算法兜底</div>
-      </div>
-      <p class="weight-note" id="aiExplain">关闭时，②语义匹配 与 ③素质评估 使用本地可解释近似算法（离线可跑，适合现场直接演示）。开启并填入你自己的 API Key 后，可以在右侧候选人详情里为单个候选人单独触发 Claude 评估，按需调用、按需付费，不会每次都重新跑一遍全部人。</p>
-      <button class="block ghost" id="btnEvalAll" style="margin-top:4px;">对队列中全部候选人运行 Claude 评估</button>
-    </div>
+<div style="padding:36px 0">
+  <div class="wrap">
+    <div class="card" style="padding:28px">
 
-    <div class="panel">
-      <p class="panel-title">岗位画像 · JD REQUIREMENTS</p>
-      <label>职位名称</label>
-      <input type="text" id="jdTitle">
-      <label>核心能力要求（用、分隔）</label>
-      <textarea id="jdSkills"></textarea>
-      <div class="field-row">
-        <div>
-          <label>最低学历</label>
-          <select id="jdDegree">
-            <option value="1">本科</option>
-            <option value="2">硕士</option>
-            <option value="3">博士</option>
-          </select>
-        </div>
-        <div>
-          <label>最低经验（年）</label>
-          <input type="number" id="jdExp" value="0" min="0">
+      <div style="margin-bottom:24px">
+        <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">你更想要（可多选）</div>
+        <div id="mood-tags" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="custom-tag-input" placeholder="输入自定义偏好，如「猫咖」" style="flex:1">
+          <button class="btn-outline" id="add-tag-btn">添加</button>
         </div>
       </div>
-      <label>岗位职责描述（用于语义匹配）</label>
-      <textarea id="jdDesc" style="min-height:84px;"></textarea>
-      <button class="block" id="btnRescore">重新评估全部候选人</button>
-    </div>
 
-    <div class="panel">
-      <p class="panel-title">新增候选人 · ADD CANDIDATE</p>
+      <div class="hairline" style="margin:22px 0"></div>
 
-      <label>上传简历 PDF（自动提取姓名 / 学历 / 经验 / 正文）</label>
-      <div id="dropZone" style="border:1px dashed var(--line); border-radius:2px; padding:16px; text-align:center; margin-bottom:8px; cursor:pointer;">
-        <input type="file" id="pdfInput" accept="application/pdf" style="display:none;">
-        <span id="dropZoneText" style="font-size:12.5px; color:var(--ink-soft);">点击选择 PDF 文件，或拖拽到此处</span>
+      <div style="margin-bottom:24px">
+        <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">今日天气</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+          <select id="city-select"></select>
+          <button class="btn-outline" id="locate-btn">📍 自动定位</button>
+          <input type="date" id="date-input">
+          <button class="btn-outline" id="query-weather-btn">查询天气</button>
+        </div>
+        <div id="weather-result" style="font-size:14px;color:var(--sky-800);background:var(--sky-100);
+          display:inline-block;padding:8px 16px;border-radius:10px"></div>
       </div>
-      <p id="parseStatus" class="module-detail" style="margin:0 0 14px;"></p>
 
-      <label style="display:flex; align-items:center; gap:8px; margin:2px 0 12px;">
-        <span style="flex:1; height:1px; background:var(--line);"></span>
-        <span style="font-size:11px; color:var(--ink-soft);">或手动填写 / 核对下方字段</span>
-        <span style="flex:1; height:1px; background:var(--line);"></span>
-      </label>
+      <div class="hairline" style="margin:22px 0"></div>
 
-      <label>姓名</label>
-      <input type="text" id="cName" placeholder="例：李思">
-      <div class="field-row">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:8px" id="grid-two">
         <div>
-          <label>学历</label>
-          <select id="cDegree">
-            <option value="1">本科</option>
-            <option value="2">硕士</option>
-            <option value="3">博士</option>
-          </select>
+          <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">同行人数</div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <button class="stepper-btn" id="people-minus">－</button>
+            <span id="people-val" style="font-size:16px;min-width:20px;text-align:center">1</span>
+            <button class="stepper-btn" id="people-plus">＋</button>
+          </div>
         </div>
         <div>
-          <label>工作经验（年）</label>
-          <input type="number" id="cExp" value="0" min="0">
+          <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">
+            人均预算 ¥<span id="budget-min-val">0</span> - ¥<span id="budget-max-val">150</span>
+          </div>
+          <div class="dual-range">
+            <input type="range" min="0" max="300" step="10" value="0" id="budget-min">
+            <input type="range" min="0" max="300" step="10" value="150" id="budget-max">
+          </div>
         </div>
       </div>
-      <label>简历正文（经历 / 项目描述，粘贴即可，或由PDF自动填充后在此核对）</label>
-      <textarea id="cResume" style="min-height:100px;"></textarea>
-      <button class="block ghost" id="btnAdd">加入队列并评估</button>
-    </div>
 
-    <div class="panel">
-      <p class="panel-title">评分权重 · ADJUSTABLE WEIGHTS</p>
-      <div class="weight-row">
-        <div class="top"><span class="name">规则引擎（硬性条件匹配）</span><span class="val" id="wRuleVal">40%</span></div>
-        <input type="range" id="wRule" min="0" max="100" value="40">
+      <div style="margin-top:16px">
+        <button class="btn" id="recommend-btn">生成推荐</button>
       </div>
-      <div class="weight-row">
-        <div class="top"><span class="name">语义匹配（岗位契合度）</span><span class="val" id="wSemVal">30%</span></div>
-        <input type="range" id="wSem" min="0" max="100" value="30">
-      </div>
-      <div class="weight-row">
-        <div class="top"><span class="name">素质评估（表达 / 量化成果）</span><span class="val" id="wQualVal">30%</span></div>
-        <input type="range" id="wQual" min="0" max="100" value="30">
-      </div>
-      <p class="weight-note">三项权重自动归一化为 100%。调整后点击左上「重新评估」查看排序变化 — 用于向面试官演示权重可调的分层架构，而非固定黑盒公式。</p>
-    </div>
-
-    <div class="panel">
-      <p class="panel-title">候选人队列 · QUEUE (<span id="queueCount">0</span>)</p>
-      <div id="queueList"></div>
-    </div>
     </div>
   </div>
+</div>
 
-  <div class="panel" id="detailPanel">
-    <div class="empty-state">
-      <span class="serif">选择左侧候选人查看可解释评分</span>
-      每一项分数都可以点开看到判断依据，而不是一个不可追溯的总分。
+<div class="hairline"></div>
+
+<div style="padding:36px 0">
+  <div class="wrap">
+    <h3 style="font-size:20px;margin-bottom:6px">为你匹配到</h3>
+    <p style="color:var(--ink-soft);font-size:14px;margin-top:0;margin-bottom:22px" id="result-sub">根据你的选择实时生成</p>
+    <div id="results" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px"></div>
+  </div>
+</div>
+
+<div class="hairline"></div>
+
+<div style="padding:36px 0">
+  <div class="wrap">
+    <h3 style="font-size:20px;margin-bottom:18px">组队出发</h3>
+    <div class="card" style="padding:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+      <div>
+        <div style="font-weight:600;margin-bottom:6px" id="team-activity">选一个推荐活动，发起周末局</div>
+        <div style="font-size:13px;color:var(--ink-soft)" id="team-detail">好友加入后自动显示人均花费</div>
+      </div>
+      <button class="btn" id="invite-btn" style="background:var(--sky)">生成邀请链接</button>
+    </div>
+    <div id="invite-result" style="margin-top:14px;font-size:14px;color:var(--ink-soft)"></div>
+  </div>
+</div>
+
+<div class="hairline"></div>
+
+<div style="padding:36px 0">
+  <div class="wrap">
+    <h3 style="font-size:20px;margin-bottom:18px">我的周末足迹</h3>
+    <div style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px">
+
+      <div class="card" style="min-width:190px;padding:16px;flex-shrink:0;position:relative">
+        <button class="btn-outline" data-share="胶片市集" style="position:absolute;top:10px;right:10px;padding:5px 10px;font-size:12px;white-space:nowrap">一键分享攻略</button>
+        <div style="font-size:12px;color:var(--ink-soft)">9月6日</div>
+        <div style="font-weight:600;margin:20px 0 6px">胶片市集</div>
+        <div style="font-size:12px;color:var(--stamp-800);background:var(--stamp-100);display:inline-block;padding:2px 8px;border-radius:6px">已打卡</div>
+      </div>
+
+      <div class="card" style="min-width:190px;padding:16px;flex-shrink:0;position:relative">
+        <button class="btn-outline" data-share="城郊环山徒步" style="position:absolute;top:10px;right:10px;padding:5px 10px;font-size:12px;white-space:nowrap">一键分享攻略</button>
+        <div style="font-size:12px;color:var(--ink-soft)">8月30日</div>
+        <div style="font-weight:600;margin:20px 0 6px">城郊环山徒步</div>
+        <div style="font-size:12px;color:var(--stamp-800);background:var(--stamp-100);display:inline-block;padding:2px 8px;border-radius:6px">已打卡</div>
+      </div>
+
+      <div class="card" style="min-width:190px;padding:16px;flex-shrink:0;border-style:dashed">
+        <div style="font-size:12px;color:var(--ink-soft)">本周末</div>
+        <div style="font-weight:600;margin:20px 0 6px;color:var(--ink-soft)">等待你的选择</div>
+      </div>
     </div>
   </div>
+</div>
+
+<div class="hairline"></div>
+
+<div style="padding:36px 0 64px">
+  <div class="wrap">
+    <h3 style="font-size:20px;margin-bottom:6px">攻略广场</h3>
+    <p style="color:var(--ink-soft);font-size:14px;margin-top:0;margin-bottom:22px">大家的打卡会变成攻略，反过来让推荐更懂你</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="card" style="padding:18px">
+        <div style="font-weight:600;margin-bottom:6px">人均80元，胶片市集半日逛法</div>
+        <div style="font-size:13px;color:var(--ink-soft)">@小林 · 阴天友好 · 2人同行</div>
+      </div>
+      <div class="card" style="padding:18px">
+        <div style="font-weight:600;margin-bottom:6px">下雨天也能去的三个展览</div>
+        <div style="font-size:13px;color:var(--ink-soft)">@阿树 · 室内 · 一人可去</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="share-modal-slot"></div>
+<div id="toast" class="toast"></div>
 
 </div>
 
-<p class="footer-note">RECRUITAI · 方案设计阶段原型 · 全部计算在本地浏览器完成，不上传任何数据</p>
-
 <script>
-const JD = {
-  title: "AI 产品经理（招聘方向）",
-  skillsRaw: "PRD撰写、需求优先级排序、用户访谈、数据分析、竞品分析、Axure、Figma、跨部门协同",
-  degree: 2,
-  exp: 0,
-  desc: "负责招聘全链路产品的需求梳理与方案设计，推动简历初筛、候选人评估、面试辅助等场景的产品化，要求具备扎实的用户调研能力、结构化的需求分析能力，能独立产出PRD与原型，并推动技术团队落地。"
+/* ---------- 数据 ---------- */
+const categoryStyle = {
+  "文艺":{ramp:"purple", icon:(c)=>`<circle cx="26" cy="26" r="10" fill="none" stroke="${c}" stroke-width="2.5"/><circle cx="26" cy="26" r="3" fill="${c}"/><path d="M26 6v6M26 40v6M6 26h6M40 26h6" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>`},
+  "户外":{ramp:"route", icon:(c)=>`<path d="M8 38L20 16L28 30L34 20L44 38Z" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round"/>`},
+  "美食":{ramp:"stamp", icon:(c)=>`<path d="M14 8v16a8 8 0 0 0 16 0V8M22 8v16" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/><path d="M36 8v36M32 8c0 8 8 8 8 16" stroke="${c}" stroke-width="2.5" stroke-linecap="round" fill="none"/>`},
+  "演出":{ramp:"sky", icon:(c)=>`<rect x="20" y="10" width="12" height="20" rx="6" fill="none" stroke="${c}" stroke-width="2.5"/><path d="M26 30v10M18 40h16" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/><path d="M14 20a12 12 0 0 0 24 0" stroke="${c}" stroke-width="2.5" fill="none"/>`},
+  "亲子":{ramp:"pink", icon:(c)=>`<circle cx="18" cy="20" r="6" fill="none" stroke="${c}" stroke-width="2.5"/><circle cx="34" cy="16" r="4" fill="none" stroke="${c}" stroke-width="2.5"/><path d="M10 40c0-8 6-12 8-12s8 4 8 12M28 40c0-6 4-10 6-10s8 4 8 10" stroke="${c}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`}
 };
 
-const SEED_CANDIDATES = [
-  {
-    name:"李萌",
-    degree:2, exp:1,
-    resume:"负责某互联网公司B端产品运营，独立撰写周度产品运营报告，识别系统性产品痛点并推动多项功能上线，相关用户咨询量下降60%。主导完成外包团队结算规则标准化配置，涉及500+人次，实现管理数据准确率100%。独立完成过一份招聘类产品方案设计，输出完整PRD文档，运用RICE模型完成需求优先级排序，依托Figma、Axure完成原型设计，参与设计过分层可解释评分架构。"
-  },
-  {
-    name:"王晨",
-    degree:1, exp:2,
-    resume:"两年电商运营经验，负责日常数据报表整理与活动执行，协助主管跟进促销排期，对Excel和基础SQL比较熟悉，希望转岗做产品，目前正在自学Axure和产品经理相关课程。"
-  },
-  {
-    name:"陈默",
-    degree:2, exp:0,
-    resume:"在校期间完成两段产品实习，参与过校园二手交易小程序的需求调研与竞品分析，独立完成过一份PRD文档并输出Figma原型，协助团队用RICE模型对20余项需求排序，累计推动3个功能上线，收集用户反馈并迭代了2版交互方案，擅长跨部门沟通协调。"
-  },
-  {
-    name:"周航",
-    degree:2, exp:3,
-    resume:"三年招聘HR SaaS产品经验，主导过候选人评估系统的1.0到2.0迭代，独立完成用户访谈20余次，输出PRD并跟进研发排期，推动简历筛选效率提升35%，熟悉Axure、Figma与竞品分析方法论，具备较强的跨部门协同与项目推进能力。"
-  }
+const cities = [
+  {name:"北京", lat:39.9, lng:116.4}, {name:"上海", lat:31.2, lng:121.5},
+  {name:"广州", lat:23.1, lng:113.3}, {name:"深圳", lat:22.5, lng:114.1},
+  {name:"杭州", lat:30.3, lng:120.2}, {name:"成都", lat:30.7, lng:104.1},
+  {name:"武汉", lat:30.6, lng:114.3}, {name:"西安", lat:34.3, lng:108.9},
+  {name:"南京", lat:32.1, lng:118.8}, {name:"重庆", lat:29.6, lng:106.5}
 ];
 
-let candidates = [];
-let selectedId = null;
-let idCounter = 1;
-let aiEnabled = false;
-let aiKeyValue = "";
+const activities = [
+  {name:"胶片市集", moods:["文艺","小众","拍照打卡"], weatherOutdoor:false, price:60, duration:"2小时", loc:"798艺术区",
+   category:"文艺", nearby:[{n:"独立唱片店",dist:"350米",commute:"步行5分钟",price:0},{n:"手冲咖啡馆",dist:"600米",commute:"步行8分钟",price:35}]},
+  {name:"独立书店午后", moods:["文艺","解压放松"], weatherOutdoor:false, price:40, duration:"1.5小时", loc:"方家胡同",
+   category:"文艺", nearby:[{n:"胡同壁画墙",dist:"200米",commute:"步行3分钟",price:0},{n:"京味小吃摊",dist:"400米",commute:"步行6分钟",price:20}]},
+  {name:"当代艺术展", moods:["文艺","拍照打卡"], weatherOutdoor:false, price:80, duration:"2小时", loc:"UCCA尤伦斯",
+   category:"文艺", nearby:[{n:"798文创商店",dist:"150米",commute:"步行2分钟",price:0},{n:"艺术区野餐草坪",dist:"500米",commute:"步行7分钟",price:0}]},
+  {name:"城郊环山徒步", moods:["运动","解压放松"], weatherOutdoor:true, price:0, duration:"半天", loc:"香山后山步道",
+   category:"户外", nearby:[{n:"山顶观景台",dist:"1.2公里",commute:"步行25分钟",price:0},{n:"农家乐午餐",dist:"800米",commute:"步行12分钟",price:45}]},
+  {name:"夜跑绿道", moods:["运动"], weatherOutdoor:true, price:0, duration:"1小时", loc:"滨河绿道",
+   category:"户外", nearby:[{n:"24小时便利店",dist:"300米",commute:"步行4分钟",price:15},{n:"河边观景桥",dist:"600米",commute:"步行9分钟",price:0}]},
+  {name:"攀岩体验馆", moods:["运动","社交牛人"], weatherOutdoor:false, price:120, duration:"2小时", loc:"极限运动中心",
+   category:"户外", nearby:[{n:"运动餐轻食店",dist:"200米",commute:"步行3分钟",price:38},{n:"蹦床公园",dist:"450米",commute:"步行6分钟",price:88}]},
+  {name:"小众live演出", moods:["小众","社交牛人"], weatherOutdoor:false, price:150, duration:"3小时", loc:"疆进酒livehouse",
+   category:"演出", nearby:[{n:"深夜酒馆",dist:"250米",commute:"步行3分钟",price:60},{n:"打口碟唱片行",dist:"400米",commute:"步行5分钟",price:0}]},
+  {name:"街角咖啡馆探店", moods:["美食","性价比","拍照打卡"], weatherOutdoor:false, price:50, duration:"1.5小时", loc:"五道营胡同",
+   category:"美食", nearby:[{n:"文创手作店",dist:"300米",commute:"步行4分钟",price:0},{n:"胡同猫咖",dist:"350米",commute:"步行5分钟",price:45}]},
+  {name:"夜市小吃巡游", moods:["美食","性价比","社交牛人"], weatherOutdoor:true, price:70, duration:"2小时", loc:"簋街夜市",
+   category:"美食", nearby:[{n:"糖水铺",dist:"150米",commute:"步行2分钟",price:18},{n:"精酿酒吧",dist:"500米",commute:"步行7分钟",price:55}]},
+  {name:"亲子农场采摘", moods:["亲子","宠物友好"], weatherOutdoor:true, price:90, duration:"半天", loc:"京郊生态农场",
+   category:"亲子", nearby:[{n:"动物喂养区",dist:"100米",commute:"步行1分钟",price:20},{n:"农场餐厅",dist:"200米",commute:"步行3分钟",price:60}]}
+];
 
-function degreeText(d){ return ['','本科','硕士','博士'][d] || '不限'; }
+const allMoods = ["文艺","运动","小众","美食","亲子","拍照打卡","解压放松","社交牛人","性价比","宠物友好"];
 
-/* ---------------- PDF parsing ---------------- */
-if(window.pdfjsLib){
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+/* ---------- 状态 ---------- */
+let state = { moods: new Set(["文艺"]), city:"北京", date:"", people:1, budgetMin:0, budgetMax:150, weather:null };
+
+/* ---------- 偏好标签 ---------- */
+function renderMoodTags(){
+  const el = document.getElementById("mood-tags");
+  el.innerHTML = "";
+  allMoods.forEach(opt=>{
+    const b = document.createElement("button");
+    b.className = "tag-btn" + (state.moods.has(opt) ? " active" : "");
+    b.textContent = opt;
+    b.onclick = ()=>{ state.moods.has(opt) ? state.moods.delete(opt) : state.moods.add(opt); renderMoodTags(); };
+    el.appendChild(b);
+  });
 }
+renderMoodTags();
 
-async function extractPdfText(file){
-  const buf = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-  let fullText = "";
-  for(let i=1; i<=pdf.numPages; i++){
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    const pageText = content.items.map(it=>it.str).join(" ");
-    fullText += pageText + "\n";
+document.getElementById("add-tag-btn").onclick = ()=>{
+  const input = document.getElementById("custom-tag-input");
+  const val = input.value.trim();
+  if(val && !allMoods.includes(val)){
+    allMoods.push(val);
+    state.moods.add(val);
+    renderMoodTags();
+    input.value = "";
   }
-  return fullText.replace(/[ \t]+/g,' ').replace(/\n{2,}/g,'\n').trim();
-}
+};
+document.getElementById("custom-tag-input").addEventListener("keydown", e=>{
+  if(e.key === "Enter"){ e.preventDefault(); document.getElementById("add-tag-btn").click(); }
+});
 
-function localParseFields(text){
-  const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
-  let name = "";
-  for(const line of lines.slice(0,6)){
-    const compact = line.replace(/\s+/g,'');
-    if(/^[\u4e00-\u9fa5]{2,4}$/.test(compact) && !/简历|个人|求职|应聘/.test(compact)){
-      name = compact; break;
-    }
-  }
-  let degree = 1;
-  if(text.includes('博士')) degree = 3;
-  else if(text.includes('硕士')) degree = 2;
-  else if(text.includes('本科')||text.includes('学士')) degree = 1;
+/* ---------- 城市与天气（演示用模拟数据，非真实天气接口） ---------- */
+const citySelect = document.getElementById("city-select");
+cities.forEach(c=>{
+  const o = document.createElement("option");
+  o.value = c.name; o.textContent = c.name;
+  citySelect.appendChild(o);
+});
+citySelect.value = state.city;
+citySelect.onchange = ()=>{ state.city = citySelect.value; };
 
-  let expYears = 0;
-  const explicitMatch = text.match(/(\d+(?:\.\d+)?)\s*年.{0,4}(工作)?经验/);
-  if(explicitMatch){
-    expYears = parseFloat(explicitMatch[1]);
-  } else {
-    const ranges = [...text.matchAll(/(20\d{2})[.\-\/](\d{1,2})\s*[-–~至]\s*(20\d{2}|至今|now)[.\-\/]?(\d{1,2})?/g)];
-    let totalMonths = 0;
-    const nowYear = 2026, nowMonth = 9;
-    ranges.forEach(m=>{
-      const y1=parseInt(m[1]), mo1=parseInt(m[2]);
-      let y2, mo2;
-      if(m[3]==='至今' || m[3]==='now'){ y2=nowYear; mo2=nowMonth; }
-      else { y2=parseInt(m[3]); mo2 = m[4]?parseInt(m[4]):12; }
-      const months = (y2-y1)*12 + (mo2-mo1);
-      if(months>0 && months<600) totalMonths += months;
+const dateInput = document.getElementById("date-input");
+const today = new Date();
+dateInput.min = today.toISOString().slice(0,10);
+dateInput.value = today.toISOString().slice(0,10);
+state.date = dateInput.value;
+dateInput.onchange = ()=>{ state.date = dateInput.value; };
+
+document.getElementById("locate-btn").onclick = ()=>{
+  if(!navigator.geolocation){ showToast("当前环境不支持定位，已保留默认城市"); return; }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const {latitude, longitude} = pos.coords;
+    let nearest = cities[0], minDist = Infinity;
+    cities.forEach(c=>{
+      const d = Math.hypot(c.lat-latitude, c.lng-longitude);
+      if(d < minDist){ minDist = d; nearest = c; }
     });
-    if(totalMonths>0) expYears = Math.round((totalMonths/12)*2)/2;
-  }
-
-  return { name, degree, exp: expYears };
-}
-
-async function aiParseResume(text, apiKey){
-  const prompt = `请从下面这段从PDF提取的简历原文中，抽取候选人基本信息。原文可能因PDF排版原因存在顺序错乱或多余空格，请尽量根据上下文判断。
-
-【简历原文】
-${text.slice(0,6000)}
-
-请只输出一个JSON对象，不要有多余文字、不要使用markdown代码块标记，字段如下：
-{
-  "name": "候选人姓名（2到4个汉字，找不到则填空字符串）",
-  "degree": 1到3的整数，1=本科，2=硕士，3=博士，取候选人最高学历,
-  "exp_years": 数字，候选人总工作/实习经验年数的估计值（可以是小数，找不到明确依据则填0）
-}`;
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{
-      'content-type':'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true'
-    },
-    body: JSON.stringify({
-      model:'claude-sonnet-5',
-      max_tokens: 300,
-      messages:[{role:'user', content: prompt}]
-    })
-  });
-  if(!resp.ok){
-    const errText = await resp.text().catch(()=> '');
-    throw new Error('HTTP '+resp.status+' '+errText.slice(0,150));
-  }
-  const data = await resp.json();
-  const text2 = (data.content||[]).map(b=>b.text||'').join('');
-  const clean = text2.replace(/```json/g,'').replace(/```/g,'').trim();
-  return JSON.parse(clean);
-}
-
-async function handlePdfUpload(file){
-  const statusEl = document.getElementById('parseStatus');
-  const zoneText = document.getElementById('dropZoneText');
-  zoneText.textContent = "已选择：" + file.name;
-  statusEl.style.color = 'var(--ink-soft)';
-  statusEl.textContent = "正在提取PDF文本…";
-  try{
-    const rawText = await extractPdfText(file);
-    document.getElementById('cResume').value = rawText;
-
-    if(aiKeyValue){
-      statusEl.textContent = "PDF文本已提取，Claude 正在识别字段…";
-      try{
-        const fields = await aiParseResume(rawText, aiKeyValue);
-        if(fields.name) document.getElementById('cName').value = fields.name;
-        if(fields.degree) document.getElementById('cDegree').value = fields.degree;
-        if(typeof fields.exp_years === 'number') document.getElementById('cExp').value = fields.exp_years;
-        statusEl.style.color = 'var(--teal)';
-        statusEl.textContent = "已由 Claude 自动识别姓名 / 学历 / 经验，请核对后再加入队列。";
-        return;
-      }catch(aiErr){
-        statusEl.textContent = "Claude 字段识别失败（"+aiErr.message+"），已回退为本地规则识别…";
-      }
-    }
-    const local = localParseFields(rawText);
-    if(local.name) document.getElementById('cName').value = local.name;
-    document.getElementById('cDegree').value = local.degree;
-    if(local.exp) document.getElementById('cExp').value = local.exp;
-    statusEl.style.color = 'var(--ochre)';
-    statusEl.textContent = "已由本地规则粗略识别字段，准确率有限，请务必核对后再加入队列（开启AI引擎并填Key可提升识别准确度）。";
-  }catch(err){
-    statusEl.style.color = 'var(--flag)';
-    statusEl.textContent = "PDF解析失败："+err.message+"，请改为手动粘贴简历正文。";
-  }
-}
-
-document.getElementById('dropZone').addEventListener('click', ()=> document.getElementById('pdfInput').click());
-document.getElementById('pdfInput').addEventListener('change', (e)=>{
-  if(e.target.files[0]) handlePdfUpload(e.target.files[0]);
-});
-['dragover','dragleave','drop'].forEach(evt=>{
-  document.getElementById('dropZone').addEventListener(evt, (e)=>{
-    e.preventDefault();
-    if(evt==='drop' && e.dataTransfer.files[0]){
-      handlePdfUpload(e.dataTransfer.files[0]);
-    }
-  });
-});
-
-async function aiEvaluate(jd, cand, apiKey){
-  const prompt = `你是一名严谨的招聘评估助手。请基于下面的岗位要求与候选人简历，输出结构化评估。
-
-【岗位名称】${jd.title || '未填写'}
-【核心能力要求】${jd.skillsRaw || '未填写'}
-【岗位职责描述】${jd.desc || '未填写'}
-【最低学历】${degreeText(jd.degree)}
-【最低经验】${jd.exp}年
-
-【候选人简历正文】
-${cand.resume}
-
-请只输出一个JSON对象，不要有任何多余文字、不要使用markdown代码块标记，字段如下：
-{
-  "semantic_score": 0到100的整数，表示候选人经历与岗位职责的语义契合程度,
-  "quality_score": 0到100的整数，表示表达的具体性、成果量化程度、逻辑清晰度,
-  "semantic_reasoning": "一句话说明语义匹配打分依据",
-  "quality_reasoning": "一句话说明素质评估打分依据",
-  "matched_strengths": ["与岗位相关的2到4个具体亮点"],
-  "gaps": ["与岗位要求存在差距的1到3个方面"],
-  "interview_questions": ["基于以上分析生成的2到3个追问问题"]
-}`;
-
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{
-      'content-type':'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true'
-    },
-    body: JSON.stringify({
-      model:'claude-sonnet-5',
-      max_tokens: 700,
-      messages:[{role:'user', content: prompt}]
-    })
-  });
-  if(!resp.ok){
-    const errText = await resp.text().catch(()=> '');
-    throw new Error('HTTP '+resp.status+' '+errText.slice(0,150));
-  }
-  const data = await resp.json();
-  const text = (data.content||[]).map(b=>b.text||'').join('');
-  const clean = text.replace(/```json/g,'').replace(/```/g,'').trim();
-  return JSON.parse(clean);
-}
-
-function splitSkills(raw){
-  return raw.split(/[、,，\n]/).map(s=>s.trim()).filter(Boolean);
-}
-
-function bigrams(text){
-  const t = text.replace(/\s+/g,"");
-  const set = new Set();
-  for(let i=0;i<t.length-1;i++) set.add(t.substr(i,2));
-  return set;
-}
-
-function jaccard(setA, setB){
-  if(setA.size===0 || setB.size===0) return 0;
-  let inter=0;
-  for(const x of setA) if(setB.has(x)) inter++;
-  const union = setA.size + setB.size - inter;
-  return union===0 ? 0 : inter/union;
-}
-
-const ACTION_VERBS = ["负责","主导","独立","推动","搭建","优化","提升","完成","撰写","设计","梳理","协助","统筹","跟进","落地","制定","牵头","拆解"];
-
-function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
-
-function scoreCandidate(cand, jd){
-  const skills = splitSkills(jd.skillsRaw);
-  const text = cand.resume;
-
-  const hits = skills.filter(s=> s && text.includes(s));
-  const misses = skills.filter(s=> s && !text.includes(s));
-  const skillRatio = skills.length ? hits.length/skills.length : 0;
-  const degreeOK = cand.degree >= jd.degree;
-  const expOK = cand.exp >= jd.exp;
-  const ruleScore = clamp(skillRatio*70 + (degreeOK?15:0) + (expOK?15:0), 0, 100);
-
-  const jdText = jd.desc + " " + jd.skillsRaw;
-  const sim = jaccard(bigrams(jdText), bigrams(text));
-  const semScoreLocal = clamp(Math.sqrt(sim)*180, 0, 100);
-
-  const numMatches = (text.match(/\d+%?/g)||[]).length;
-  const verbHits = ACTION_VERBS.filter(v=>text.includes(v)).length;
-  const len = text.length;
-  const lenScore = len < 40 ? (len/40)*20 : len>900 ? 20 : 30;
-  const qualScoreLocal = clamp(Math.min(numMatches,8)*5 + Math.min(verbHits,10)*4 + lenScore, 0, 100);
-
-  return {
-    ruleScore: Math.round(ruleScore),
-    semScore: Math.round(semScoreLocal),
-    qualScore: Math.round(qualScoreLocal),
-    hits, misses, degreeOK, expOK, numMatches, verbHits, len,
-    source: 'local',
-    semReasoning: null, qualReasoning: null,
-    strengths: null, gaps: null, aiQuestions: null
-  };
-}
-
-async function upgradeWithAI(cand, jd, weights){
-  cand._aiState = 'loading';
-  renderQueue();
-  if(selectedId===cand.id) renderDetail(jd, weights);
-  try{
-    const result = await aiEvaluate(jd, cand, aiKeyValue);
-    cand._score.semScore = clamp(Math.round(result.semantic_score),0,100);
-    cand._score.qualScore = clamp(Math.round(result.quality_score),0,100);
-    cand._score.source = 'ai';
-    cand._score.semReasoning = result.semantic_reasoning;
-    cand._score.qualReasoning = result.quality_reasoning;
-    cand._score.strengths = result.matched_strengths || [];
-    cand._score.gaps = result.gaps || [];
-    cand._score.aiQuestions = result.interview_questions || [];
-    cand._total = weightedTotal(cand._score, weights);
-    cand._aiState = 'done';
-  }catch(err){
-    cand._aiState = 'error';
-    cand._aiError = err.message;
-  }
-  candidates.sort((a,b)=> b._total - a._total);
-  renderQueue();
-  if(selectedId===cand.id) renderDetail(jd, weights);
-}
-
-function weightedTotal(s, weights){
-  return Math.round(s.ruleScore*weights.rule + s.semScore*weights.sem + s.qualScore*weights.qual);
-}
-
-function getWeights(){
-  const r = parseInt(document.getElementById('wRule').value);
-  const s = parseInt(document.getElementById('wSem').value);
-  const q = parseInt(document.getElementById('wQual').value);
-  const sum = r+s+q || 1;
-  return { rule:r/sum, sem:s/sum, qual:q/sum, rPct:Math.round(r/sum*100), sPct:Math.round(s/sum*100), qPct:Math.round(q/sum*100) };
-}
-
-function getJD(){
-  return {
-    title: document.getElementById('jdTitle').value,
-    skillsRaw: document.getElementById('jdSkills').value,
-    degree: parseInt(document.getElementById('jdDegree').value),
-    exp: parseFloat(document.getElementById('jdExp').value)||0,
-    desc: document.getElementById('jdDesc').value
-  };
-}
-
-function recomputeAll(){
-  const jd = getJD();
-  const weights = getWeights();
-  candidates.forEach(c=>{
-    const prevAi = (c._score && c._score.source==='ai') ? {
-      semScore:c._score.semScore, qualScore:c._score.qualScore,
-      semReasoning:c._score.semReasoning, qualReasoning:c._score.qualReasoning,
-      strengths:c._score.strengths, gaps:c._score.gaps, aiQuestions:c._score.aiQuestions
-    } : null;
-    c._score = scoreCandidate(c, jd);
-    if(prevAi){
-      Object.assign(c._score, prevAi, {source:'ai'});
-      c._aiState = 'done';
-    } else {
-      c._aiState = 'idle';
-      c._aiError = null;
-    }
-    c._total = weightedTotal(c._score, weights);
-  });
-  candidates.sort((a,b)=> b._total - a._total);
-  renderQueue();
-  if(selectedId!==null) renderDetail(jd, weights);
-}
-
-function evaluateOne(candId){
-  const jd = getJD();
-  const weights = getWeights();
-  const cand = candidates.find(c=>c.id===candId);
-  if(!cand) return;
-  if(!aiKeyValue){
-    alert('请先在左侧「AI 引擎」面板填入 API Key');
-    return;
-  }
-  upgradeWithAI(cand, jd, weights);
-}
-
-function evaluateAllWithAI(){
-  const jd = getJD();
-  const weights = getWeights();
-  if(!aiKeyValue){
-    alert('请先在左侧「AI 引擎」面板填入 API Key');
-    return;
-  }
-  candidates.forEach(c=> upgradeWithAI(c, jd, weights));
-}
-
-function renderWeightLabels(){
-  const w = getWeights();
-  document.getElementById('wRuleVal').textContent = w.rPct+"%";
-  document.getElementById('wSemVal').textContent = w.sPct+"%";
-  document.getElementById('wQualVal').textContent = w.qPct+"%";
-}
-
-function badgeClass(score){
-  if(score>=75) return "high";
-  if(score>=55) return "mid";
-  return "low";
-}
-
-function renderQueue(){
-  const list = document.getElementById('queueList');
-  document.getElementById('queueCount').textContent = candidates.length;
-  list.innerHTML = "";
-  candidates.forEach((c, i)=>{
-    const row = document.createElement('div');
-    row.className = "queue-item" + (c.id===selectedId ? " active":"");
-    row.innerHTML = `
-      <span class="queue-rank mono">${i+1}</span>
-      <span class="queue-name">${c.name}<span class="sub">学历满足: ${c.degree>=2?'是':'否'} · ${c.exp}年经验${c._aiState==='loading' ? ' · Claude分析中…' : ''}</span></span>
-      <span class="score-badge ${badgeClass(c._total)}">${c._total}</span>
-    `;
-    row.onclick = ()=>{ selectedId = c.id; recomputeAll(); };
-    list.appendChild(row);
-  });
-  if(candidates.length===0){
-    list.innerHTML = `<p style="font-size:12.5px;color:var(--ink-soft);">暂无候选人，添加一份简历后自动开始评估。</p>`;
-  }
-}
-
-function prepSuggestions(cand, s, jd){
-  const items = [];
-  if(s.aiQuestions && s.aiQuestions.length){
-    s.aiQuestions.forEach(q=> items.push(q));
-  }
-  if(s.misses.length){
-    items.push(`简历中未直接体现「${s.misses.slice(0,3).join('、')}」，建议面试中追问相关经历或替代性证明。`);
-  }
-  if(s.semScore < 55){
-    items.push(`语义契合度偏低，建议请候选人用自己的话复述对该岗位职责的理解，判断是否只是关键词堆砌。`);
-  }
-  if(s.numMatches < 2){
-    items.push(`成果量化较少，建议追问具体数据支撑（如提升比例、覆盖人次、处理量级）。`);
-  }
-  if(!s.degreeOK){
-    items.push(`学历未达到岗位最低要求，需确认是否有等效项目经验或特批空间。`);
-  }
-  if(!s.expOK){
-    items.push(`工作经验年限低于岗位设定，建议重点评估其学习曲线与项目复杂度而非年限本身。`);
-  }
-  if(s.verbHits >= 6 && s.ruleScore>=60){
-    items.push(`行动性描述充分且硬性条件达标，可以直接进入结构化能力面试环节，减少初筛重复沟通。`);
-  }
-  if(items.length===0){
-    items.push(`各维度表现均衡，建议按标准面试流程推进，重点验证简历细节的真实性与深度。`);
-  }
-  return items;
-}
-
-function renderDetail(jd, weights){
-  const cand = candidates.find(c=>c.id===selectedId);
-  const panel = document.getElementById('detailPanel');
-  if(!cand){
-    panel.innerHTML = `<div class="empty-state"><span class="serif">选择左侧候选人查看可解释评分</span>每一项分数都可以点开看到判断依据，而不是一个不可追溯的总分。</div>`;
-    return;
-  }
-  const s = cand._score;
-  const override = cand.override;
-  const finalLabel = override!=null ? "人工决策" : "AI 建议（待复核）";
-  const finalVal = override!=null ? override : cand._total;
-
-  panel.innerHTML = `
-    <div class="detail-head">
-      <div>
-        <h2>${cand.name}</h2>
-        <div class="detail-meta">应聘：${jd.title || '（未填写职位）'} · 学历 ${['','本科','硕士','博士'][cand.degree]} · 经验 ${cand.exp} 年</div>
-      </div>
-      <div class="final-score">
-        <div class="num" style="color:${override!=null?'#B8863B':'#1F6F6B'}">${finalVal}</div>
-        <div class="lbl">${finalLabel}</div>
-      </div>
-    </div>
-
-    <div style="display:flex; justify-content:flex-end; margin-bottom:2px;">
-      <button class="small ghost" id="btnEvalOne" ${cand._aiState==='loading' ? 'disabled' : ''}>
-        ${cand._aiState==='loading' ? 'Claude 分析中…' : (s.source==='ai' ? '用 Claude 重新评估这位候选人' : '用 Claude 评估这位候选人')}
-      </button>
-    </div>
-
-    <div class="module">
-      <div class="module-top"><span class="name">① 规则引擎 · 硬性条件匹配</span><span class="score">${s.ruleScore}</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${s.ruleScore}%;"></div></div>
-      <div class="module-detail">
-        学历 ${s.degreeOK?'满足':'不满足'} 岗位要求；经验年限 ${s.expOK?'满足':'不满足'} 最低门槛。
-        技能匹配 ${s.hits.length}/${s.hits.length+s.misses.length} 项。
-      </div>
-      <div class="tag-list">
-        ${s.hits.map(h=>`<span class="tag hit">✓ ${h}</span>`).join('')}
-        ${s.misses.map(m=>`<span class="tag miss">✕ ${m}</span>`).join('')}
-      </div>
-    </div>
-
-    ${cand._aiState==='error' ? `<div class="module" style="border-color:#E3B7A8; background:var(--flag-soft);">
-      <div class="module-detail" style="color:var(--flag);">Claude API 调用失败：${cand._aiError||'未知错误'}。已回退为本地算法评分，请检查 API Key 或网络后点击左侧「重新评估全部候选人」重试。</div>
-    </div>` : ''}
-
-    <div class="module">
-      <div class="module-top">
-        <span class="name">② 语义匹配 · 岗位契合度</span>
-        <span style="display:flex; align-items:center; gap:8px;">
-          <span class="tag ${s.source==='ai'?'hit':''}" style="background:${s.source==='ai'?'var(--teal-soft)':'var(--paper)'}; color:${s.source==='ai'?'var(--teal)':'var(--ink-soft)'}; border:1px solid ${s.source==='ai'?'transparent':'var(--line)'};">${cand._aiState==='loading' ? 'Claude 分析中…' : (s.source==='ai' ? 'Claude 实时评估' : '本地算法')}</span>
-          <span class="score">${s.semScore}</span>
-        </span>
-      </div>
-      <div class="bar-track"><div class="bar-fill" style="width:${s.semScore}%;"></div></div>
-      <div class="module-detail">
-        ${s.semReasoning ? s.semReasoning : '基于简历正文与岗位描述的文本相似度估算（轻量级可解释近似模型，本地计算，不调用外部模型）。'}
-      </div>
-    </div>
-
-    <div class="module">
-      <div class="module-top">
-        <span class="name">③ 素质评估 · 表达与量化成果</span>
-        <span style="display:flex; align-items:center; gap:8px;">
-          <span class="tag ${s.source==='ai'?'hit':''}" style="background:${s.source==='ai'?'var(--teal-soft)':'var(--paper)'}; color:${s.source==='ai'?'var(--teal)':'var(--ink-soft)'}; border:1px solid ${s.source==='ai'?'transparent':'var(--line)'};">${cand._aiState==='loading' ? 'Claude 分析中…' : (s.source==='ai' ? 'Claude 实时评估' : '本地算法')}</span>
-          <span class="score">${s.qualScore}</span>
-        </span>
-      </div>
-      <div class="bar-track"><div class="bar-fill" style="width:${s.qualScore}%;"></div></div>
-      <div class="module-detail">
-        ${s.qualReasoning ? s.qualReasoning : `检测到 ${s.numMatches} 处量化数据、${s.verbHits} 个行动性动词、正文长度 ${s.len} 字。用于判断表达的具体程度而非泛泛而谈。`}
-      </div>
-      ${s.strengths && s.strengths.length ? `<div class="tag-list">${s.strengths.map(x=>`<span class="tag hit">＋ ${x}</span>`).join('')}${(s.gaps||[]).map(x=>`<span class="tag miss">－ ${x}</span>`).join('')}</div>` : ''}
-    </div>
-
-    <div class="override-box">
-      <span class="name">④ 反馈迭代 · 人工复核（最终决策）</span>
-      <div class="override-row">
-        <div>
-          <label style="margin-bottom:4px;">人工评分</label>
-          <input type="number" min="0" max="100" id="overrideInput" value="${override!=null?override:''}" placeholder="${cand._total}">
-        </div>
-        <button class="small ghost" id="btnOverride">保存复核结果</button>
-        ${override!=null?`<button class="small ghost" id="btnClearOverride">清除，回退到AI建议</button>`:''}
-      </div>
-      <div class="decision-line">
-        权重配置：规则引擎 <b>${weights.rPct}%</b> · 语义匹配 <b>${weights.sPct}%</b> · 素质评估 <b>${weights.qPct}%</b> → AI 综合建议 <b>${cand._total}</b>分。
-        ${override!=null ? `人工复核后最终结论为 <b>${override}</b> 分，以此为准，AI 分数仅作参考留痕。` : `尚未人工复核，当前展示为 AI 建议，不作为最终录用依据。`}
-      </div>
-    </div>
-
-    <div class="panel" style="margin-top:16px; padding:16px 18px;">
-      <p class="panel-title" style="margin-bottom:10px;">面试建议 · 追问方向</p>
-      <ul class="prep-list">
-        ${prepSuggestions(cand, s, jd).map(t=>`<li>${t}</li>`).join('')}
-      </ul>
-    </div>
-  `;
-
-  document.getElementById('btnOverride').onclick = ()=>{
-    const v = parseInt(document.getElementById('overrideInput').value);
-    if(!isNaN(v)){
-      cand.override = clamp(v,0,100);
-      renderDetail(jd, weights);
-      renderQueue();
-    }
-  };
-  const clearBtn = document.getElementById('btnClearOverride');
-  if(clearBtn) clearBtn.onclick = ()=>{
-    cand.override = null;
-    renderDetail(jd, weights);
-    renderQueue();
-  };
-  document.getElementById('btnEvalOne').onclick = ()=> evaluateOne(cand.id);
-}
-
-['wRule','wSem','wQual'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', ()=>{
-    renderWeightLabels();
-  });
-});
-
-document.getElementById('aiToggle').addEventListener('change', (e)=>{
-  aiEnabled = e.target.checked;
-  document.getElementById('aiKeyRow').style.display = aiEnabled ? 'block' : 'none';
-  updateAiStatus();
-});
-
-document.getElementById('aiKey').addEventListener('input', (e)=>{
-  aiKeyValue = e.target.value.trim();
-  updateAiStatus();
-});
-
-function updateAiStatus(){
-  const status = document.getElementById('aiStatus');
-  if(!aiEnabled){
-    status.textContent = '未启用 · 当前使用本地算法';
-    return;
-  }
-  status.textContent = aiKeyValue ? '已填入 Key · 下次评估将调用 Claude' : '未连接 · 请填入 API Key';
-}
-
-document.getElementById('btnRescore').onclick = recomputeAll;
-document.getElementById('btnEvalAll').onclick = evaluateAllWithAI;
-
-document.getElementById('btnAdd').onclick = ()=>{
-  const name = document.getElementById('cName').value.trim();
-  const resume = document.getElementById('cResume').value.trim();
-  if(!name || !resume){ alert('请填写姓名和简历正文'); return; }
-  const cand = {
-    id: idCounter++,
-    name,
-    degree: parseInt(document.getElementById('cDegree').value),
-    exp: parseFloat(document.getElementById('cExp').value)||0,
-    resume,
-    override: null
-  };
-  candidates.push(cand);
-  selectedId = cand.id;
-  document.getElementById('cName').value='';
-  document.getElementById('cResume').value='';
-  document.getElementById('cExp').value='0';
-  document.getElementById('cDegree').value='1';
-  document.getElementById('dropZoneText').textContent = '点击选择 PDF 文件，或拖拽到此处';
-  document.getElementById('parseStatus').textContent = '';
-  document.getElementById('pdfInput').value = '';
-  recomputeAll();
+    state.city = nearest.name;
+    citySelect.value = nearest.name;
+    showToast(`已定位到最近城市：${nearest.name}`);
+  }, ()=>{ showToast("未获取到定位权限，已保留默认城市"); });
 };
 
-function init(){
-  document.getElementById('jdTitle').value = JD.title;
-  document.getElementById('jdSkills').value = JD.skillsRaw;
-  document.getElementById('jdDegree').value = JD.degree;
-  document.getElementById('jdExp').value = JD.exp;
-  document.getElementById('jdDesc').value = JD.desc;
-
-  SEED_CANDIDATES.forEach(c=>{
-    candidates.push({ id:idCounter++, name:c.name, degree:c.degree, exp:c.exp, resume:c.resume, override:null });
-  });
-  selectedId = candidates[0].id;
-
-  renderWeightLabels();
-  recomputeAll();
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) >>> 0; } return h; }
+function mockWeather(city, date){
+  const conditions = [
+    {text:"晴", icon:"☀️", outdoorOk:true},
+    {text:"多云", icon:"⛅", outdoorOk:true},
+    {text:"阴", icon:"☁️", outdoorOk:true},
+    {text:"小雨", icon:"🌧️", outdoorOk:false},
+    {text:"雷阵雨", icon:"⛈️", outdoorOk:false}
+  ];
+  const h = hashStr(city + date);
+  const cond = conditions[h % conditions.length];
+  const temp = 14 + (h % 18);
+  return {...cond, temp};
 }
-init();
+
+document.getElementById("query-weather-btn").onclick = ()=>{
+  const w = mockWeather(state.city, state.date);
+  state.weather = w;
+  document.getElementById("weather-result").textContent =
+    `${state.city} ${state.date} ${w.icon} ${w.text} · 约${w.temp}℃`;
+};
+document.getElementById("query-weather-btn").click();
+
+/* ---------- 同行人数 ---------- */
+document.getElementById("people-minus").onclick = ()=>{
+  state.people = Math.max(1, state.people-1);
+  document.getElementById("people-val").textContent = state.people;
+};
+document.getElementById("people-plus").onclick = ()=>{
+  state.people = Math.min(8, state.people+1);
+  document.getElementById("people-val").textContent = state.people;
+};
+
+/* ---------- 预算双滑块 ---------- */
+const bMin = document.getElementById("budget-min");
+const bMax = document.getElementById("budget-max");
+function syncBudget(){
+  let lo = +bMin.value, hi = +bMax.value;
+  if(lo > hi - 10){ lo = hi - 10; bMin.value = lo; }
+  state.budgetMin = lo; state.budgetMax = hi;
+  document.getElementById("budget-min-val").textContent = lo;
+  document.getElementById("budget-max-val").textContent = hi;
+}
+bMin.oninput = syncBudget;
+bMax.oninput = syncBudget;
+
+/* ---------- 推荐结果 ---------- */
+function activityImage(cat){
+  const s = categoryStyle[cat] || categoryStyle["文艺"];
+  const c = `var(--${s.ramp}-800)`;
+  return `<div style="height:120px;background:var(--${s.ramp}-100);display:flex;align-items:center;justify-content:center">
+    <svg width="52" height="52" viewBox="0 0 52 52">${s.icon(c)}</svg>
+  </div>`;
+}
+
+function recommend(){
+  if(!state.weather) document.getElementById("query-weather-btn").click();
+  const w = state.weather;
+  const scored = activities
+    .filter(a => state.budgetMin <= a.price && a.price <= state.budgetMax)
+    .filter(a => w.outdoorOk || !a.weatherOutdoor)
+    .map(a => ({...a, score: a.moods.filter(m=>state.moods.has(m)).length}))
+    .sort((a,b)=> b.score - a.score)
+    .slice(0,3);
+
+  const resultsEl = document.getElementById("results");
+  resultsEl.innerHTML = "";
+  document.getElementById("result-sub").textContent =
+    `${state.city} · ${w ? w.text : ""} · ${state.people}人同行 · 人均¥${state.budgetMin}-${state.budgetMax}`;
+
+  if(scored.length===0){
+    resultsEl.innerHTML = `<div style="grid-column:1/-1;color:var(--ink-soft);font-size:14px">
+      这个天气和预算下暂时没有合适的活动，试试放宽预算范围</div>`;
+    return;
+  }
+
+  scored.forEach(a=>{
+    const perPerson = state.people>1 ? Math.round(a.price*0.85) : a.price;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.padding = "0";
+    const nearbyHtml = a.nearby.map(n=>`
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);padding:4px 0">
+        <span>${n.n}</span><span>${n.dist} · ${n.commute} · ${n.price===0?"免费":"¥"+n.price}</span>
+      </div>`).join("");
+    card.innerHTML = `
+      ${activityImage(a.category)}
+      <div style="border-left:4px solid var(--route);padding:16px">
+        <div style="font-size:12px;color:var(--ink-soft);margin-bottom:6px">${a.loc} · ${a.duration}</div>
+        <div style="font-weight:600;font-size:16px;margin-bottom:6px">${a.name}</div>
+        <div style="font-size:13px;color:var(--stamp-800);margin-bottom:10px">
+          ${a.price===0 ? "免费" : `人均约 ¥${perPerson}`}
+        </div>
+        <div class="hairline" style="margin-bottom:8px"></div>
+        <div style="font-size:12px;color:var(--ink-soft);margin-bottom:2px">附近可游玩</div>
+        ${nearbyHtml}
+      </div>`;
+    resultsEl.appendChild(card);
+  });
+
+  document.getElementById("team-activity").textContent = `发起「${scored[0].name}」周末局`;
+  document.getElementById("team-detail").textContent =
+    `${scored[0].price===0 ? "免费活动" : "人均约 ¥" + scored[0].price + "，人越多越划算"}`;
+  window._currentPick = scored[0];
+}
+document.getElementById("recommend-btn").onclick = recommend;
+recommend();
+
+/* ---------- 组队邀请 ---------- */
+document.getElementById("invite-btn").onclick = ()=>{
+  const pick = window._currentPick;
+  const el = document.getElementById("invite-result");
+  if(!pick){ el.textContent = "先生成一个推荐活动吧"; return; }
+  el.textContent = `邀请链接已生成 · 「${pick.name}」· 好友扫码加入后自动计算人均花费`;
+};
+
+/* ---------- 一键分享攻略 ---------- */
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(()=> t.classList.remove("show"), 2200);
+}
+
+const guideTemplates = {
+  "胶片市集": "周末去了胶片市集，人不算多刚刚好逛。\n带上相机随手拍拍摊主的老物件，逛累了旁边就有咖啡馆歇脚。\n人均大概60元，半天时间刚好够，适合喜欢慢节奏的周末。",
+  "城郊环山徒步": "临时起意去爬了后山，路不难走，风景很值。\n早上九点出发，中午前能到山顶观景台，下山顺路吃了农家饭。\n全程免费，适合想放空又不想太累的周末。"
+};
+
+document.querySelectorAll("[data-share]").forEach(btn=>{
+  btn.onclick = ()=> openShareModal(btn.getAttribute("data-share"));
+});
+
+function openShareModal(name){
+  const slot = document.getElementById("share-modal-slot");
+  const guideText = guideTemplates[name] || `分享了「${name}」，这个周末过得很值~`;
+  slot.innerHTML = `
+    <div class="overlay-wrap" style="min-height:520px">
+      <div class="overlay" style="min-height:520px">
+        <div class="card" style="max-width:420px;width:100%;padding:20px;background:var(--paper)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <h3 style="font-size:17px">一键分享攻略</h3>
+            <button class="btn-outline" id="close-share" style="padding:4px 10px;font-size:13px">关闭</button>
+          </div>
+
+          <div style="height:140px;border-radius:10px;background:var(--stamp-100);display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;overflow:hidden">
+            <div style="position:absolute;bottom:10px;left:12px;right:12px;color:var(--stamp-800);font-weight:600;font-size:16px">${name} · 周末攻略</div>
+            <svg width="40" height="40" viewBox="0 0 52 52" style="opacity:.5">${categoryStyle["文艺"].icon("var(--stamp-800)")}</svg>
+          </div>
+
+          <div style="font-size:13px;color:var(--ink-soft);margin-bottom:6px">攻略内容（可自行修改）</div>
+          <textarea id="guide-text" rows="6">${guideText}</textarea>
+
+          <div style="font-size:13px;color:var(--ink-soft);margin:14px 0 8px">选择分享到</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn" data-platform="小红书">小红书</button>
+            <button class="btn" data-platform="抖音" style="background:var(--ink)">抖音</button>
+            <button class="btn" data-platform="快手" style="background:var(--stamp)">快手</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById("close-share").onclick = ()=>{ slot.innerHTML = ""; };
+  slot.querySelectorAll("[data-platform]").forEach(pBtn=>{
+    pBtn.onclick = ()=>{
+      showToast(`演示效果：即将跳转至「${pBtn.getAttribute("data-platform")}」完成分享`);
+    };
+  });
+}
+
+const d = new Date();
+document.getElementById("dateline").textContent =
+  `${d.getMonth()+1}月${d.getDate()}日 · 本周末`;
 </script>
-</body>
-</html>
