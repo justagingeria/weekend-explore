@@ -1,37 +1,37 @@
 <style>
 :root{
-  --paper:#F6F1E7; --paper-2:#EFE8D8; --ink:#2A2724; --ink-soft:#736B5E; --line:#D8CBB4;
-  --route:#2F6B52; --route-100:#DCEAE1; --route-800:#1B4536;
-  --stamp:#C98A1E; --stamp-100:#F5E6C8; --stamp-800:#7A5210;
-  --sky:#1F6F78; --sky-100:#DCEEEF; --sky-800:#123E42;
-  --pink:#B24E6B; --pink-100:#F5E1E7; --pink-800:#6E2C3E;
-  --purple:#5B4E96; --purple-100:#E7E3F5; --purple-800:#332A5E;
+  --paper:#EAF1EC; --paper-2:#DEEAE1; --ink:#2B372F; --ink-soft:#6C7B71; --line:#C7D9CC;
+  --route:#3E7A5C; --route-100:#DCEEE2; --route-800:#1E4A34;
+  --stamp:#C08A50; --stamp-100:#F2E3CE; --stamp-800:#79521F;
+  --sky:#4C86A2; --sky-100:#DCEAF0; --sky-800:#1F4A5C;
+  --pink:#B57A93; --pink-100:#F1E1E9; --pink-800:#6E3B50;
+  --purple:#7F73A8; --purple-100:#E7E3F2; --purple-800:#443A6B;
   --danger:#B23A2E;
 }
 :root:not([data-theme="light"]){
   @media (prefers-color-scheme: dark){
-    --paper:#211E1A; --paper-2:#2A2621; --ink:#EDE6D8; --ink-soft:#A69C8B; --line:#4A4238;
-    --route:#6FBE96; --route-100:#26382F; --route-800:#CFE9DB;
-    --stamp:#E3AE55; --stamp-100:#3A2E17; --stamp-800:#F2D8A0;
-    --sky:#5FB4BC; --sky-100:#1D3336; --sky-800:#CFEDEF;
-    --pink:#DE8FA6; --pink-100:#3A2530; --pink-800:#F5D6DF;
-    --purple:#A79CDA; --purple-100:#2A2540; --purple-800:#E3DEF7;
+    --paper:#1C221E; --paper-2:#252C27; --ink:#E3ECE6; --ink-soft:#9FB0A5; --line:#3B463F;
+    --route:#7FC29E; --route-100:#243830; --route-800:#CDEBD9;
+    --stamp:#DDB27C; --stamp-100:#3A2E1D; --stamp-800:#F1DBB8;
+    --sky:#86B8CE; --sky-100:#1E3038; --sky-800:#D6EBF2;
+    --pink:#D9A2B7; --pink-100:#33232B; --pink-800:#F2DAE3;
+    --purple:#AFA4D6; --purple-100:#26223A; --purple-800:#E5E0F5;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#211E1A; --paper-2:#2A2621; --ink:#EDE6D8; --ink-soft:#A69C8B; --line:#4A4238;
-  --route:#6FBE96; --route-100:#26382F; --route-800:#CFE9DB;
-  --stamp:#E3AE55; --stamp-100:#3A2E17; --stamp-800:#F2D8A0;
-  --sky:#5FB4BC; --sky-100:#1D3336; --sky-800:#CFEDEF;
-  --pink:#DE8FA6; --pink-100:#3A2530; --pink-800:#F5D6DF;
-  --purple:#A79CDA; --purple-100:#2A2540; --purple-800:#E3DEF7;
+  --paper:#1C221E; --paper-2:#252C27; --ink:#E3ECE6; --ink-soft:#9FB0A5; --line:#3B463F;
+  --route:#7FC29E; --route-100:#243830; --route-800:#CDEBD9;
+  --stamp:#DDB27C; --stamp-100:#3A2E1D; --stamp-800:#F1DBB8;
+  --sky:#86B8CE; --sky-100:#1E3038; --sky-800:#D6EBF2;
+  --pink:#D9A2B7; --pink-100:#33232B; --pink-800:#F2DAE3;
+  --purple:#AFA4D6; --purple-100:#26223A; --purple-800:#E5E0F5;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
   line-height:1.7;}
 h1,h2,h3{font-family:"Noto Serif SC","Songti SC",serif;font-weight:600;margin:0;letter-spacing:.02em}
-.wrap{max-width:960px;margin:0 auto;padding:0 24px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
 .hairline{border-top:1px dashed var(--line)}
 .tag-btn{border:1px solid var(--line);background:var(--paper-2);color:var(--ink-soft);
   border-radius:999px;padding:8px 16px;font-size:14px;cursor:pointer;transition:all .15s;}
@@ -54,20 +54,33 @@ textarea{width:100%;resize:vertical;line-height:1.7}
 .dual-range input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:2px}
 .dual-range input[type=range]::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--route);border:none;cursor:pointer}
 .dual-range input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:2px}
-.toast{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);
-  padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);
+  padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50}
 .toast.show{opacity:1}
-.overlay-wrap{min-height:1px;}
-.overlay{background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:24px}
+.pick-card{cursor:pointer;transition:box-shadow .15s,border-color .15s}
+.pick-card:hover{box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.pick-card.selected{border-color:var(--route);box-shadow:0 0 0 2px var(--route)}
+.floating-panel{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 14px 32px rgba(0,0,0,.14);padding:18px}
+.row-flex{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;position:relative}
+#results{flex:1 1 460px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+#detail-panel{flex:0 0 300px;max-width:100%}
+#footprint-list{flex:1 1 340px;display:flex;gap:14px;overflow-x:auto;padding-bottom:8px}
+#guide-plaza{flex:1 1 280px;display:flex;flex-direction:column;gap:12px}
+#share-panel{flex:0 0 320px;max-width:100%}
+@media (max-width:760px){
+  .row-flex{flex-direction:column}
+  #detail-panel,#share-panel{flex-basis:auto;width:100%}
+}
 </style>
 
-<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">周末城市探索指南产品原型：根据偏好、天气、预算智能推荐活动，支持组队、打卡与攻略分享</h2>
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;">周末城市探索指南产品原型：根据偏好、天气、预算智能推荐活动，支持组队、打卡与攻略分享</h2>
 
 <div style="position:relative">
 
-<div style="padding:56px 0 40px">
+<div style="padding:48px 0 32px">
   <div class="wrap">
-    <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:36px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px">
       <div style="display:flex;align-items:center;gap:10px">
         <span style="font-size:22px">🎫</span>
         <span style="font-size:15px;color:var(--ink-soft)">城市漫游 · 周末探索指南</span>
@@ -75,11 +88,11 @@ textarea{width:100%;resize:vertical;line-height:1.7}
       <span style="font-size:13px;color:var(--ink-soft)" id="dateline"></span>
     </div>
 
-    <h1 style="font-size:40px;line-height:1.3;max-width:640px">这个周末，
+    <h1 style="font-size:clamp(26px,5vw,40px);line-height:1.3;max-width:640px">这个周末，
       <br>去哪儿都有个说法</h1>
 
-    <div style="display:flex;align-items:flex-start;gap:14px;margin-top:20px;max-width:560px">
-      <svg width="52" height="52" viewBox="0 0 52 52" style="flex-shrink:0">
+    <div style="display:flex;align-items:flex-start;gap:14px;margin-top:18px;max-width:560px">
+      <svg width="48" height="48" viewBox="0 0 52 52" style="flex-shrink:0">
         <ellipse cx="26" cy="46" rx="14" ry="3" fill="var(--ink)" opacity=".08"/>
         <circle cx="26" cy="24" r="20" fill="var(--stamp)"/>
         <circle cx="14" cy="12" r="6" fill="var(--stamp)"/>
@@ -90,31 +103,27 @@ textarea{width:100%;resize:vertical;line-height:1.7}
         <circle cx="33" cy="23" r="2.4" fill="var(--stamp-800)"/>
         <path d="M18 31Q26 37 34 31" stroke="var(--stamp-800)" stroke-width="2" fill="none" stroke-linecap="round"/>
       </svg>
-      <p style="color:var(--ink-soft);font-size:16px;margin:6px 0 0">
-        选好下面几项，团团自动为您推荐游玩指南~
-      </p>
+      <p style="color:var(--ink-soft);font-size:16px;margin:6px 0 0">选好下面几项，团团自动为您推荐游玩指南~</p>
     </div>
   </div>
 </div>
 
 <div class="hairline"></div>
 
-<div style="padding:36px 0">
+<!-- 用户偏好选择 -->
+<div style="padding:32px 0">
   <div class="wrap">
-    <div class="card" style="padding:28px">
-
-      <div style="margin-bottom:24px">
+    <div class="card" style="padding:24px">
+      <div style="margin-bottom:22px">
         <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">你更想要（可多选）</div>
         <div id="mood-tags" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px"></div>
-        <div style="display:flex;gap:8px">
-          <input type="text" id="custom-tag-input" placeholder="输入自定义偏好，如「猫咖」" style="flex:1">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="custom-tag-input" placeholder="输入自定义偏好，如「猫咖」" style="flex:1;min-width:160px">
           <button class="btn-outline" id="add-tag-btn">添加</button>
         </div>
       </div>
-
-      <div class="hairline" style="margin:22px 0"></div>
-
-      <div style="margin-bottom:24px">
+      <div class="hairline" style="margin:20px 0"></div>
+      <div style="margin-bottom:22px">
         <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">今日天气</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
           <select id="city-select"></select>
@@ -125,10 +134,8 @@ textarea{width:100%;resize:vertical;line-height:1.7}
         <div id="weather-result" style="font-size:14px;color:var(--sky-800);background:var(--sky-100);
           display:inline-block;padding:8px 16px;border-radius:10px"></div>
       </div>
-
-      <div class="hairline" style="margin:22px 0"></div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:8px" id="grid-two">
+      <div class="hairline" style="margin:20px 0"></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px;margin-bottom:6px">
         <div>
           <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">同行人数</div>
           <div style="display:flex;align-items:center;gap:14px">
@@ -147,8 +154,7 @@ textarea{width:100%;resize:vertical;line-height:1.7}
           </div>
         </div>
       </div>
-
-      <div style="margin-top:16px">
+      <div style="margin-top:14px">
         <button class="btn" id="recommend-btn">生成推荐</button>
       </div>
     </div>
@@ -157,93 +163,119 @@ textarea{width:100%;resize:vertical;line-height:1.7}
 
 <div class="hairline"></div>
 
-<div style="padding:36px 0">
+<!-- 为你匹配 + 组队出发 -->
+<div style="padding:32px 0">
   <div class="wrap">
     <h3 style="font-size:20px;margin-bottom:6px">为你匹配到</h3>
-    <p style="color:var(--ink-soft);font-size:14px;margin-top:0;margin-bottom:22px" id="result-sub">根据你的选择实时生成</p>
-    <div id="results" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px"></div>
-  </div>
-</div>
+    <p style="color:var(--ink-soft);font-size:14px;margin-top:0;margin-bottom:20px" id="result-sub">根据你的选择实时生成，点击卡片查看详情</p>
 
-<div class="hairline"></div>
+    <div class="row-flex" style="margin-bottom:24px">
+      <div id="results"></div>
+      <div id="detail-panel" class="floating-panel" style="display:none"></div>
+    </div>
 
-<div style="padding:36px 0">
-  <div class="wrap">
-    <h3 style="font-size:20px;margin-bottom:18px">组队出发</h3>
-    <div class="card" style="padding:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+    <div class="card" style="padding:22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
       <div>
-        <div style="font-weight:600;margin-bottom:6px" id="team-activity">选一个推荐活动，发起周末局</div>
+        <div style="font-weight:600;margin-bottom:6px" id="team-activity">选一个推荐地点，发起打卡局</div>
         <div style="font-size:13px;color:var(--ink-soft)" id="team-detail">好友加入后自动显示人均花费</div>
       </div>
       <button class="btn" id="invite-btn" style="background:var(--sky)">生成邀请链接</button>
     </div>
-    <div id="invite-result" style="margin-top:14px;font-size:14px;color:var(--ink-soft)"></div>
+    <div id="invite-result" style="margin-top:12px;font-size:14px;color:var(--ink-soft)"></div>
   </div>
 </div>
 
 <div class="hairline"></div>
 
-<div style="padding:36px 0">
+<!-- 我的足迹 + 攻略广场 -->
+<div style="padding:32px 0 56px">
   <div class="wrap">
-    <h3 style="font-size:20px;margin-bottom:18px">我的周末足迹</h3>
-    <div style="display:flex;gap:14px;overflow-x:auto;padding-bottom:8px">
-
-      <div class="card" style="min-width:190px;padding:16px;flex-shrink:0;position:relative">
-        <button class="btn-outline" data-share="胶片市集" style="position:absolute;top:10px;right:10px;padding:5px 10px;font-size:12px;white-space:nowrap">一键分享攻略</button>
-        <div style="font-size:12px;color:var(--ink-soft)">9月6日</div>
-        <div style="font-weight:600;margin:20px 0 6px">胶片市集</div>
-        <div style="font-size:12px;color:var(--stamp-800);background:var(--stamp-100);display:inline-block;padding:2px 8px;border-radius:6px">已打卡</div>
+    <div class="row-flex" id="footprint-row">
+      <div style="flex:1 1 340px;min-width:0">
+        <h3 style="font-size:20px;margin-bottom:16px">我的周末足迹</h3>
+        <div id="footprint-list">
+          <div class="card" style="min-width:170px;padding:16px;flex-shrink:0;position:relative">
+            <button class="btn-outline" data-share="胶片市集" style="position:absolute;top:10px;right:10px;padding:5px 10px;font-size:12px;white-space:nowrap">一键分享攻略</button>
+            <div style="font-size:12px;color:var(--ink-soft)">9月6日</div>
+            <div style="font-weight:600;margin:20px 0 6px">胶片市集</div>
+            <div style="font-size:12px;color:var(--stamp-800);background:var(--stamp-100);display:inline-block;padding:2px 8px;border-radius:6px">已打卡</div>
+          </div>
+          <div class="card" style="min-width:170px;padding:16px;flex-shrink:0;position:relative">
+            <button class="btn-outline" data-share="城郊环山徒步" style="position:absolute;top:10px;right:10px;padding:5px 10px;font-size:12px;white-space:nowrap">一键分享攻略</button>
+            <div style="font-size:12px;color:var(--ink-soft)">8月30日</div>
+            <div style="font-weight:600;margin:20px 0 6px">城郊环山徒步</div>
+            <div style="font-size:12px;color:var(--stamp-800);background:var(--stamp-100);display:inline-block;padding:2px 8px;border-radius:6px">已打卡</div>
+          </div>
+          <div class="card" style="min-width:170px;padding:16px;flex-shrink:0;border-style:dashed">
+            <div style="font-size:12px;color:var(--ink-soft)">本周末</div>
+            <div style="font-weight:600;margin:20px 0 6px;color:var(--ink-soft)">等待你的选择</div>
+          </div>
+        </div>
       </div>
 
-      <div class="card" style="min-width:190px;padding:16px;flex-shrink:0;position:relative">
-        <button class="btn-outline" data-share="城郊环山徒步" style="position:absolute;top:10px;right:10px;padding:5px 10px;font-size:12px;white-space:nowrap">一键分享攻略</button>
-        <div style="font-size:12px;color:var(--ink-soft)">8月30日</div>
-        <div style="font-weight:600;margin:20px 0 6px">城郊环山徒步</div>
-        <div style="font-size:12px;color:var(--stamp-800);background:var(--stamp-100);display:inline-block;padding:2px 8px;border-radius:6px">已打卡</div>
+      <div id="guide-plaza">
+        <h3 style="font-size:20px;margin-bottom:16px">攻略广场</h3>
+        <div class="card" style="padding:16px">
+          <div style="font-weight:600;margin-bottom:6px;font-size:14px">人均80元，胶片市集半日逛法</div>
+          <div style="font-size:12px;color:var(--ink-soft)">@小林 · 阴天友好 · 2人同行</div>
+        </div>
+        <div class="card" style="padding:16px">
+          <div style="font-weight:600;margin-bottom:6px;font-size:14px">下雨天也能去的三个展览</div>
+          <div style="font-size:12px;color:var(--ink-soft)">@阿树 · 室内 · 一人可去</div>
+        </div>
       </div>
 
-      <div class="card" style="min-width:190px;padding:16px;flex-shrink:0;border-style:dashed">
-        <div style="font-size:12px;color:var(--ink-soft)">本周末</div>
-        <div style="font-weight:600;margin:20px 0 6px;color:var(--ink-soft)">等待你的选择</div>
-      </div>
+      <div id="share-backdrop" style="display:none;position:absolute;inset:0;background:rgba(20,25,20,.28);border-radius:14px;z-index:4"></div>
+      <div id="share-panel" class="floating-panel" style="display:none;position:absolute;top:0;right:0;z-index:5"></div>
     </div>
   </div>
 </div>
 
-<div class="hairline"></div>
-
-<div style="padding:36px 0 64px">
-  <div class="wrap">
-    <h3 style="font-size:20px;margin-bottom:6px">攻略广场</h3>
-    <p style="color:var(--ink-soft);font-size:14px;margin-top:0;margin-bottom:22px">大家的打卡会变成攻略，反过来让推荐更懂你</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <div class="card" style="padding:18px">
-        <div style="font-weight:600;margin-bottom:6px">人均80元，胶片市集半日逛法</div>
-        <div style="font-size:13px;color:var(--ink-soft)">@小林 · 阴天友好 · 2人同行</div>
-      </div>
-      <div class="card" style="padding:18px">
-        <div style="font-weight:600;margin-bottom:6px">下雨天也能去的三个展览</div>
-        <div style="font-size:13px;color:var(--ink-soft)">@阿树 · 室内 · 一人可去</div>
-      </div>
-    </div>
-  </div>
 </div>
 
-<div id="share-modal-slot"></div>
 <div id="toast" class="toast"></div>
 
-</div>
-
 <script>
-/* ---------- 数据 ---------- */
-const categoryStyle = {
-  "文艺":{ramp:"purple", icon:(c)=>`<circle cx="26" cy="26" r="10" fill="none" stroke="${c}" stroke-width="2.5"/><circle cx="26" cy="26" r="3" fill="${c}"/><path d="M26 6v6M26 40v6M6 26h6M40 26h6" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/>`},
-  "户外":{ramp:"route", icon:(c)=>`<path d="M8 38L20 16L28 30L34 20L44 38Z" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round"/>`},
-  "美食":{ramp:"stamp", icon:(c)=>`<path d="M14 8v16a8 8 0 0 0 16 0V8M22 8v16" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/><path d="M36 8v36M32 8c0 8 8 8 8 16" stroke="${c}" stroke-width="2.5" stroke-linecap="round" fill="none"/>`},
-  "演出":{ramp:"sky", icon:(c)=>`<rect x="20" y="10" width="12" height="20" rx="6" fill="none" stroke="${c}" stroke-width="2.5"/><path d="M26 30v10M18 40h16" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/><path d="M14 20a12 12 0 0 0 24 0" stroke="${c}" stroke-width="2.5" fill="none"/>`},
-  "亲子":{ramp:"pink", icon:(c)=>`<circle cx="18" cy="20" r="6" fill="none" stroke="${c}" stroke-width="2.5"/><circle cx="34" cy="16" r="4" fill="none" stroke="${c}" stroke-width="2.5"/><path d="M10 40c0-8 6-12 8-12s8 4 8 12M28 40c0-6 4-10 6-10s8 4 8 10" stroke="${c}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`}
-};
+/* ---------- 插画（用原创扁平插画代替真实图片：发布环境无法直接加载外部图片/在线生图，先用插画占位，之后接入真实图床即可替换） ---------- */
+function scene(category){
+  const scenes = {
+    "文艺": `<rect width="400" height="200" fill="var(--purple-100)"/>
+      <rect x="130" y="40" width="140" height="95" rx="4" fill="none" stroke="var(--purple-800)" stroke-width="3"/>
+      <path d="M145 120 L175 80 L200 105 L225 70 L255 120" fill="none" stroke="var(--purple-800)" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="160" cy="60" r="8" fill="var(--purple-800)"/>
+      <path d="M90 170 Q90 140 105 140 Q120 140 120 170" fill="none" stroke="var(--purple-800)" stroke-width="3"/>
+      <rect x="95" y="168" width="20" height="14" fill="var(--purple-800)"/>`,
+    "户外": `<rect width="400" height="200" fill="var(--route-100)"/>
+      <circle cx="320" cy="45" r="22" fill="var(--stamp)"/>
+      <path d="M40 160 L120 70 L170 130 L210 90 L300 160 Z" fill="var(--route-800)" opacity=".85"/>
+      <path d="M150 160 L200 100 L260 160 Z" fill="var(--route-800)" opacity=".6"/>
+      <rect x="0" y="160" width="400" height="40" fill="var(--route-800)" opacity=".25"/>`,
+    "美食": `<rect width="400" height="200" fill="var(--stamp-100)"/>
+      <ellipse cx="200" cy="140" rx="70" ry="18" fill="var(--stamp-800)"/>
+      <path d="M140 140 Q140 90 200 90 Q260 90 260 140" fill="var(--stamp-800)" opacity=".9"/>
+      <path d="M180 80 Q175 65 185 55 M200 80 Q195 60 205 48 M220 80 Q215 65 225 55" stroke="var(--stamp-800)" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6"/>
+      <ellipse cx="305" cy="155" rx="22" ry="8" fill="var(--stamp-800)" opacity=".7"/>
+      <rect x="290" y="120" width="30" height="35" rx="6" fill="var(--stamp-800)" opacity=".7"/>`,
+    "演出": `<rect width="400" height="200" fill="var(--sky-100)"/>
+      <path d="M200 20 L120 160 L280 160 Z" fill="var(--sky-800)" opacity=".18"/>
+      <rect x="192" y="70" width="16" height="55" rx="8" fill="var(--sky-800)"/>
+      <circle cx="200" cy="60" r="18" fill="none" stroke="var(--sky-800)" stroke-width="4"/>
+      <rect x="180" y="125" width="40" height="8" rx="4" fill="var(--sky-800)"/>
+      <circle cx="90" cy="40" r="3" fill="var(--sky-800)"/><circle cx="320" cy="55" r="3" fill="var(--sky-800)"/><circle cx="270" cy="30" r="2" fill="var(--sky-800)"/>`,
+    "亲子": `<rect width="400" height="200" fill="var(--pink-100)"/>
+      <line x1="130" y1="35" x2="110" y2="150" stroke="var(--pink-800)" stroke-width="4"/>
+      <line x1="230" y1="35" x2="250" y2="150" stroke="var(--pink-800)" stroke-width="4"/>
+      <line x1="110" y1="150" x2="250" y2="150" stroke="var(--pink-800)" stroke-width="4"/>
+      <line x1="160" y1="45" x2="150" y2="115" stroke="var(--pink-800)" stroke-width="2"/>
+      <line x1="200" y1="45" x2="190" y2="115" stroke="var(--pink-800)" stroke-width="2"/>
+      <rect x="145" y="115" width="50" height="10" rx="4" fill="var(--pink-800)"/>
+      <circle cx="310" cy="60" r="16" fill="var(--pink-800)" opacity=".8"/>
+      <line x1="310" y1="76" x2="310" y2="110" stroke="var(--pink-800)" stroke-width="2"/>`
+  };
+  return `<svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice">${scenes[category]||scenes["文艺"]}</svg>`;
+}
 
+/* ---------- 数据 ---------- */
 const cities = [
   {name:"北京", lat:39.9, lng:116.4}, {name:"上海", lat:31.2, lng:121.5},
   {name:"广州", lat:23.1, lng:113.3}, {name:"深圳", lat:22.5, lng:114.1},
@@ -278,7 +310,7 @@ const activities = [
 const allMoods = ["文艺","运动","小众","美食","亲子","拍照打卡","解压放松","社交牛人","性价比","宠物友好"];
 
 /* ---------- 状态 ---------- */
-let state = { moods: new Set(["文艺"]), city:"北京", date:"", people:1, budgetMin:0, budgetMax:150, weather:null };
+let state = { moods: new Set(["文艺"]), city:"北京", date:"", people:1, budgetMin:0, budgetMax:150, weather:null, selected:null };
 
 /* ---------- 偏好标签 ---------- */
 function renderMoodTags(){
@@ -298,10 +330,7 @@ document.getElementById("add-tag-btn").onclick = ()=>{
   const input = document.getElementById("custom-tag-input");
   const val = input.value.trim();
   if(val && !allMoods.includes(val)){
-    allMoods.push(val);
-    state.moods.add(val);
-    renderMoodTags();
-    input.value = "";
+    allMoods.push(val); state.moods.add(val); renderMoodTags(); input.value = "";
   }
 };
 document.getElementById("custom-tag-input").addEventListener("keydown", e=>{
@@ -310,11 +339,7 @@ document.getElementById("custom-tag-input").addEventListener("keydown", e=>{
 
 /* ---------- 城市与天气（演示用模拟数据，非真实天气接口） ---------- */
 const citySelect = document.getElementById("city-select");
-cities.forEach(c=>{
-  const o = document.createElement("option");
-  o.value = c.name; o.textContent = c.name;
-  citySelect.appendChild(o);
-});
+cities.forEach(c=>{ const o=document.createElement("option"); o.value=c.name; o.textContent=c.name; citySelect.appendChild(o); });
 citySelect.value = state.city;
 citySelect.onchange = ()=>{ state.city = citySelect.value; };
 
@@ -330,133 +355,131 @@ document.getElementById("locate-btn").onclick = ()=>{
   navigator.geolocation.getCurrentPosition(pos=>{
     const {latitude, longitude} = pos.coords;
     let nearest = cities[0], minDist = Infinity;
-    cities.forEach(c=>{
-      const d = Math.hypot(c.lat-latitude, c.lng-longitude);
-      if(d < minDist){ minDist = d; nearest = c; }
-    });
-    state.city = nearest.name;
-    citySelect.value = nearest.name;
+    cities.forEach(c=>{ const d=Math.hypot(c.lat-latitude,c.lng-longitude); if(d<minDist){minDist=d;nearest=c;} });
+    state.city = nearest.name; citySelect.value = nearest.name;
     showToast(`已定位到最近城市：${nearest.name}`);
   }, ()=>{ showToast("未获取到定位权限，已保留默认城市"); });
 };
 
-function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) >>> 0; } return h; }
+function hashStr(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))>>>0; } return h; }
 function mockWeather(city, date){
   const conditions = [
-    {text:"晴", icon:"☀️", outdoorOk:true},
-    {text:"多云", icon:"⛅", outdoorOk:true},
-    {text:"阴", icon:"☁️", outdoorOk:true},
-    {text:"小雨", icon:"🌧️", outdoorOk:false},
+    {text:"晴", icon:"☀️", outdoorOk:true}, {text:"多云", icon:"⛅", outdoorOk:true},
+    {text:"阴", icon:"☁️", outdoorOk:true}, {text:"小雨", icon:"🌧️", outdoorOk:false},
     {text:"雷阵雨", icon:"⛈️", outdoorOk:false}
   ];
-  const h = hashStr(city + date);
+  const h = hashStr(city+date);
   const cond = conditions[h % conditions.length];
-  const temp = 14 + (h % 18);
-  return {...cond, temp};
+  return {...cond, temp: 14+(h%18)};
 }
-
 document.getElementById("query-weather-btn").onclick = ()=>{
   const w = mockWeather(state.city, state.date);
   state.weather = w;
-  document.getElementById("weather-result").textContent =
-    `${state.city} ${state.date} ${w.icon} ${w.text} · 约${w.temp}℃`;
+  document.getElementById("weather-result").textContent = `${state.city} ${state.date} ${w.icon} ${w.text} · 约${w.temp}℃`;
 };
 document.getElementById("query-weather-btn").click();
 
 /* ---------- 同行人数 ---------- */
-document.getElementById("people-minus").onclick = ()=>{
-  state.people = Math.max(1, state.people-1);
-  document.getElementById("people-val").textContent = state.people;
-};
-document.getElementById("people-plus").onclick = ()=>{
-  state.people = Math.min(8, state.people+1);
-  document.getElementById("people-val").textContent = state.people;
-};
+document.getElementById("people-minus").onclick = ()=>{ state.people=Math.max(1,state.people-1); document.getElementById("people-val").textContent=state.people; };
+document.getElementById("people-plus").onclick = ()=>{ state.people=Math.min(8,state.people+1); document.getElementById("people-val").textContent=state.people; };
 
 /* ---------- 预算双滑块 ---------- */
-const bMin = document.getElementById("budget-min");
-const bMax = document.getElementById("budget-max");
+const bMin = document.getElementById("budget-min"), bMax = document.getElementById("budget-max");
 function syncBudget(){
-  let lo = +bMin.value, hi = +bMax.value;
-  if(lo > hi - 10){ lo = hi - 10; bMin.value = lo; }
-  state.budgetMin = lo; state.budgetMax = hi;
-  document.getElementById("budget-min-val").textContent = lo;
-  document.getElementById("budget-max-val").textContent = hi;
+  let lo=+bMin.value, hi=+bMax.value;
+  if(lo>hi-10){ lo=hi-10; bMin.value=lo; }
+  state.budgetMin=lo; state.budgetMax=hi;
+  document.getElementById("budget-min-val").textContent=lo;
+  document.getElementById("budget-max-val").textContent=hi;
 }
-bMin.oninput = syncBudget;
-bMax.oninput = syncBudget;
+bMin.oninput = syncBudget; bMax.oninput = syncBudget;
 
 /* ---------- 推荐结果 ---------- */
-function activityImage(cat){
-  const s = categoryStyle[cat] || categoryStyle["文艺"];
-  const c = `var(--${s.ramp}-800)`;
-  return `<div style="height:120px;background:var(--${s.ramp}-100);display:flex;align-items:center;justify-content:center">
-    <svg width="52" height="52" viewBox="0 0 52 52">${s.icon(c)}</svg>
-  </div>`;
-}
-
 function recommend(){
   if(!state.weather) document.getElementById("query-weather-btn").click();
   const w = state.weather;
+  state.selected = null;
+  document.getElementById("detail-panel").style.display = "none";
+  document.getElementById("team-activity").textContent = "选一个推荐地点，发起打卡局";
+  document.getElementById("team-detail").textContent = "好友加入后自动显示人均花费";
+
   const scored = activities
-    .filter(a => state.budgetMin <= a.price && a.price <= state.budgetMax)
+    .filter(a => state.budgetMin<=a.price && a.price<=state.budgetMax)
     .filter(a => w.outdoorOk || !a.weatherOutdoor)
     .map(a => ({...a, score: a.moods.filter(m=>state.moods.has(m)).length}))
-    .sort((a,b)=> b.score - a.score)
+    .sort((a,b)=> b.score-a.score)
     .slice(0,3);
 
   const resultsEl = document.getElementById("results");
   resultsEl.innerHTML = "";
   document.getElementById("result-sub").textContent =
-    `${state.city} · ${w ? w.text : ""} · ${state.people}人同行 · 人均¥${state.budgetMin}-${state.budgetMax}`;
+    `${state.city} · ${w?w.text:""} · ${state.people}人同行 · 人均¥${state.budgetMin}-${state.budgetMax} · 点击卡片查看详情`;
 
   if(scored.length===0){
-    resultsEl.innerHTML = `<div style="grid-column:1/-1;color:var(--ink-soft);font-size:14px">
-      这个天气和预算下暂时没有合适的活动，试试放宽预算范围</div>`;
+    resultsEl.innerHTML = `<div style="grid-column:1/-1;color:var(--ink-soft);font-size:14px">这个天气和预算下暂时没有合适的活动，试试放宽预算范围</div>`;
     return;
   }
 
-  scored.forEach(a=>{
-    const perPerson = state.people>1 ? Math.round(a.price*0.85) : a.price;
+  scored.forEach((a,idx)=>{
     const card = document.createElement("div");
-    card.className = "card";
+    card.className = "card pick-card";
     card.style.padding = "0";
-    const nearbyHtml = a.nearby.map(n=>`
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);padding:4px 0">
-        <span>${n.n}</span><span>${n.dist} · ${n.commute} · ${n.price===0?"免费":"¥"+n.price}</span>
-      </div>`).join("");
+    card.dataset.idx = idx;
     card.innerHTML = `
-      ${activityImage(a.category)}
+      <div style="height:120px">${scene(a.category)}</div>
       <div style="border-left:4px solid var(--route);padding:16px">
         <div style="font-size:12px;color:var(--ink-soft);margin-bottom:6px">${a.loc} · ${a.duration}</div>
         <div style="font-weight:600;font-size:16px;margin-bottom:6px">${a.name}</div>
-        <div style="font-size:13px;color:var(--stamp-800);margin-bottom:10px">
-          ${a.price===0 ? "免费" : `人均约 ¥${perPerson}`}
-        </div>
-        <div class="hairline" style="margin-bottom:8px"></div>
-        <div style="font-size:12px;color:var(--ink-soft);margin-bottom:2px">附近可游玩</div>
-        ${nearbyHtml}
+        <div style="font-size:13px;color:var(--stamp-800)">${a.price===0?"免费":`人均约 ¥${a.price}`}</div>
       </div>`;
+    card.onclick = ()=> selectActivity(a, card, scored);
     resultsEl.appendChild(card);
   });
-
-  document.getElementById("team-activity").textContent = `发起「${scored[0].name}」周末局`;
-  document.getElementById("team-detail").textContent =
-    `${scored[0].price===0 ? "免费活动" : "人均约 ¥" + scored[0].price + "，人越多越划算"}`;
-  window._currentPick = scored[0];
 }
 document.getElementById("recommend-btn").onclick = recommend;
 recommend();
 
+function selectActivity(a, cardEl, list){
+  state.selected = a;
+  document.querySelectorAll(".pick-card").forEach(c=>c.classList.remove("selected"));
+  cardEl.classList.add("selected");
+
+  const perPerson = state.people>1 ? Math.round(a.price*0.85) : a.price;
+  document.getElementById("team-activity").textContent = `发起【${a.name}】打卡局`;
+  document.getElementById("team-detail").textContent =
+    `${a.price===0?"免费活动":"人均约 ¥"+perPerson}，好友加入后自动分摊`;
+
+  const nearbyHtml = a.nearby.map(n=>`
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);padding:4px 0">
+      <span>${n.n}</span><span>${n.dist} · ${n.commute} · ${n.price===0?"免费":"¥"+n.price}</span>
+    </div>`).join("");
+  const moodTagsHtml = a.moods.map(m=>`<span style="font-size:12px;background:var(--route-100);color:var(--route-800);padding:2px 10px;border-radius:999px;margin-right:6px">${m}</span>`).join("");
+
+  const panel = document.getElementById("detail-panel");
+  panel.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+      <div style="font-weight:600;font-size:16px">${a.name}</div>
+      <button class="btn-outline" id="detail-close" style="padding:3px 9px;font-size:12px">关闭</button>
+    </div>
+    <div style="height:100px;border-radius:10px;overflow:hidden;margin-bottom:12px">${scene(a.category)}</div>
+    <div style="font-size:13px;color:var(--ink-soft);margin-bottom:6px">${a.loc} · ${a.duration}</div>
+    <div style="font-size:13px;color:var(--stamp-800);margin-bottom:10px">${a.price===0?"免费":`人均约 ¥${a.price}`}</div>
+    <div style="margin-bottom:12px">${moodTagsHtml}</div>
+    <div class="hairline" style="margin-bottom:8px"></div>
+    <div style="font-size:12px;color:var(--ink-soft);margin-bottom:2px">附近可游玩</div>
+    ${nearbyHtml}`;
+  panel.style.display = "block";
+  document.getElementById("detail-close").onclick = ()=>{ panel.style.display="none"; };
+}
+
 /* ---------- 组队邀请 ---------- */
 document.getElementById("invite-btn").onclick = ()=>{
-  const pick = window._currentPick;
   const el = document.getElementById("invite-result");
-  if(!pick){ el.textContent = "先生成一个推荐活动吧"; return; }
-  el.textContent = `邀请链接已生成 · 「${pick.name}」· 好友扫码加入后自动计算人均花费`;
+  if(!state.selected){ el.textContent = "先在上方选中一个推荐地点吧"; return; }
+  el.textContent = `邀请链接已生成 · 【${state.selected.name}】· 好友扫码加入后自动计算人均花费`;
 };
 
-/* ---------- 一键分享攻略 ---------- */
+/* ---------- 一键分享攻略（悬浮于"我的周末足迹"右侧） ---------- */
 function showToast(msg){
   const t = document.getElementById("toast");
   t.textContent = msg; t.classList.add("show");
@@ -468,49 +491,45 @@ const guideTemplates = {
   "城郊环山徒步": "临时起意去爬了后山，路不难走，风景很值。\n早上九点出发，中午前能到山顶观景台，下山顺路吃了农家饭。\n全程免费，适合想放空又不想太累的周末。"
 };
 
+function closeShare(){
+  document.getElementById("share-panel").style.display = "none";
+  document.getElementById("share-backdrop").style.display = "none";
+}
+
 document.querySelectorAll("[data-share]").forEach(btn=>{
   btn.onclick = ()=> openShareModal(btn.getAttribute("data-share"));
 });
+document.getElementById("share-backdrop").onclick = closeShare;
 
 function openShareModal(name){
-  const slot = document.getElementById("share-modal-slot");
   const guideText = guideTemplates[name] || `分享了「${name}」，这个周末过得很值~`;
-  slot.innerHTML = `
-    <div class="overlay-wrap" style="min-height:520px">
-      <div class="overlay" style="min-height:520px">
-        <div class="card" style="max-width:420px;width:100%;padding:20px;background:var(--paper)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-            <h3 style="font-size:17px">一键分享攻略</h3>
-            <button class="btn-outline" id="close-share" style="padding:4px 10px;font-size:13px">关闭</button>
-          </div>
-
-          <div style="height:140px;border-radius:10px;background:var(--stamp-100);display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;overflow:hidden">
-            <div style="position:absolute;bottom:10px;left:12px;right:12px;color:var(--stamp-800);font-weight:600;font-size:16px">${name} · 周末攻略</div>
-            <svg width="40" height="40" viewBox="0 0 52 52" style="opacity:.5">${categoryStyle["文艺"].icon("var(--stamp-800)")}</svg>
-          </div>
-
-          <div style="font-size:13px;color:var(--ink-soft);margin-bottom:6px">攻略内容（可自行修改）</div>
-          <textarea id="guide-text" rows="6">${guideText}</textarea>
-
-          <div style="font-size:13px;color:var(--ink-soft);margin:14px 0 8px">选择分享到</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn" data-platform="小红书">小红书</button>
-            <button class="btn" data-platform="抖音" style="background:var(--ink)">抖音</button>
-            <button class="btn" data-platform="快手" style="background:var(--stamp)">快手</button>
-          </div>
-        </div>
-      </div>
+  const cat = (activities.find(a=>a.name===name)||{}).category || "文艺";
+  const panel = document.getElementById("share-panel");
+  panel.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-weight:600;font-size:16px">一键分享攻略</div>
+      <button class="btn-outline" id="close-share" style="padding:4px 10px;font-size:13px">关闭</button>
+    </div>
+    <div style="height:120px;border-radius:10px;overflow:hidden;margin-bottom:14px;position:relative">
+      ${scene(cat)}
+      <div style="position:absolute;bottom:8px;left:10px;right:10px;color:#fff;font-weight:600;font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,.5)">${name} · 周末攻略</div>
+    </div>
+    <div style="font-size:13px;color:var(--ink-soft);margin-bottom:6px">攻略内容（可自行修改）</div>
+    <textarea id="guide-text" rows="6">${guideText}</textarea>
+    <div style="font-size:13px;color:var(--ink-soft);margin:14px 0 8px">选择分享到</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" data-platform="小红书">小红书</button>
+      <button class="btn" data-platform="抖音" style="background:var(--ink)">抖音</button>
+      <button class="btn" data-platform="快手" style="background:var(--stamp)">快手</button>
     </div>`;
-
-  document.getElementById("close-share").onclick = ()=>{ slot.innerHTML = ""; };
-  slot.querySelectorAll("[data-platform]").forEach(pBtn=>{
-    pBtn.onclick = ()=>{
-      showToast(`演示效果：即将跳转至「${pBtn.getAttribute("data-platform")}」完成分享`);
-    };
+  panel.style.display = "block";
+  document.getElementById("share-backdrop").style.display = "block";
+  document.getElementById("close-share").onclick = closeShare;
+  panel.querySelectorAll("[data-platform]").forEach(pBtn=>{
+    pBtn.onclick = ()=> showToast(`演示效果：即将跳转至「${pBtn.getAttribute("data-platform")}」完成分享`);
   });
 }
 
 const d = new Date();
-document.getElementById("dateline").textContent =
-  `${d.getMonth()+1}月${d.getDate()}日 · 本周末`;
+document.getElementById("dateline").textContent = `${d.getMonth()+1}月${d.getDate()}日 · 本周末`;
 </script>
